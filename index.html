@@ -4,47 +4,76 @@
     <meta charset="UTF-8">
     <title>ManoBit: Clash & Defense</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Press+Start+2P&display=swap');
-        :root { --bg: #05050a; --panel: #0d0d16; --accent: #ffb347; --win: #4CAF50; --lose: #f44336; --ego: #a333ff; --sp: #33aaff; --border: #2a2a3a; }
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+        :root { --bg: #0c0c12; --panel: #08080c; --accent: #ffb347; --win: #4CAF50; --lose: #f44336; --ego: #a333ff; --sp: #33aaff; --border: #2a2a3a; }
+        
         body { margin: 0; background: var(--bg); color: #e0e0f8; font-family: 'Roboto', sans-serif; overflow: hidden; text-transform: uppercase; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
-        .screen { display: none; width: 98%; max-width: 1200px; height: 95vh; background: var(--panel); border-radius: 15px; border: 2px solid var(--border); flex-direction: column; align-items: center; padding: 15px; box-sizing: border-box; position: relative; }
-        .active { display: flex; }
-        h1 { font-family: 'Press Start 2P'; font-size: 0.9rem; color: var(--accent); margin-bottom: 10px; }
-        
-        .battle-grid { display: flex; width: 100%; flex: 1; gap: 20px; }
-        .squad-side { width: 60%; display: grid; grid-template-columns: repeat(3, 2fr); gap: 10px; align-content: center; }
-        .enemy-side { width: 40%; display: flex; flex-direction: column; align-items: center; justify-content: center; background: rgba(255,0,0,0.05); border-radius: 20px; border: 1px solid #400; }
-        
-        .unit-card { background: #08080f; border: 2px solid var(--border); border-radius: 10px; padding: 8px; text-align: center; transition: 0.3s; position: relative; }
-        .unit-card.target { border-color: var(--lose); box-shadow: 0 0 15px var(--lose); }
-        .unit-card.acting { border-color: var(--accent); transform: scale(1.05); }
-        .unit-card.defending { border-color: #555; background: #1a1a1a; }
 
-        .bar { width: 100%; height: 6px; background: #000; border-radius: 3px; overflow: hidden; margin: 3px 0; }
+        /* JANELA DE SELEÇÃO INICIAL */
+        #scr-sel { 
+            width: 500px; height: 450px; background: #1e1e24; border: 1px solid #444; padding: 20px; border-radius: 8px;
+            display: none; flex-direction: column; align-items: center; z-index: 1000;
+        }
+
+        /* HUD PRINCIPAL REPLICADO */
+        #scr-bat { 
+            width: 100vw; height: 100vh; display: none; background: var(--bg); flex-direction: column; 
+        }
+        .active { display: flex !important; }
+
+        .battle-grid { display: flex; width: 100%; flex: 1; padding: 40px; box-sizing: border-box; }
+        
+        /* Área dos Sinners (Centralizada/Esquerda) */
+        .squad-side { 
+            width: 65%; display: grid; grid-template-columns: repeat(3, 200px); gap: 20px; align-content: center; justify-content: center;
+        }
+        
+        /* Área do Boss (Lado Direito conforme imagem) */
+        .enemy-side { 
+            width: 35%; display: flex; flex-direction: column; align-items: center; justify-content: center; border-left: 1px solid #1a1a25;
+        }
+        
+        /* Cards dos Sinners estilo imagem */
+        .unit-card { 
+            background: #08080f; border: 2px solid var(--border); border-radius: 10px; padding: 15px; text-align: center; position: relative; transition: 0.3s;
+        }
+        .unit-card.target { border-color: #ff4444; box-shadow: 0 0 15px rgba(255, 68, 68, 0.4); }
+        .unit-card.acting { border-color: #ffb347; transform: translateY(-5px); }
+
+        .bar { width: 100%; height: 8px; background: #000; border-radius: 4px; overflow: hidden; margin: 6px 0; }
         .bar-fill { height: 100%; transition: 0.4s; }
         
-        #coin-box { position: absolute; top: 30%; left: 50%; transform: translateX(-50%); display: flex; gap: 10px; z-index: 100; pointer-events: none; }
-        .v-coin { width: 55px; height: 55px; border-radius: 50%; border: 3px solid var(--accent); background: #222; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: bold; }
-        .spin { animation: flip 0.15s infinite linear; }
-        .h { background: var(--win); box-shadow: 0 0 10px var(--win); } 
-        .t { background: var(--lose); opacity: 0.5; }
-        @keyframes flip { from { transform: rotateY(0deg); } to { transform: rotateY(360deg); } }
-
-        .cmd-panel { width: 100%; background: #030308; border-top: 3px solid var(--accent); padding: 15px; box-sizing: border-box; border-radius: 20px 20px 0 0; }
-        .skill-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
-        .btn-sk { background: #161625; color: #fff; border: 1px solid #444; padding: 10px; border-radius: 8px; cursor: pointer; font-size: 0.5rem; font-family: 'Press Start 2P'; line-height: 1.4; }
-        .btn-sk:hover { border-color: var(--accent); background: #22223a; }
+        /* PAINEL INFERIOR (HUD DE COMANDO) */
+        .cmd-panel { 
+            width: 100%; height: 220px; background: #020205; border-top: 2px solid var(--accent); padding: 10px; box-sizing: border-box;
+            display: flex; flex-direction: column;
+        }
+        .skill-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; max-width: 1100px; margin: 0 auto; width: 100%; flex: 1; align-items: center; }
         
-        #log { width: 100%; height: 60px; background: #000; margin-top: 10px; padding: 8px; font-size: 0.7rem; color: #999; overflow-y: auto; border: 1px solid #333; }
-        .target-indicator { position: absolute; top: -20px; left: 50%; transform: translateX(-50%); color: var(--lose); font-weight: bold; font-size: 0.6rem; }
+        .btn-sk { 
+            background: #11111a; color: #fff; border: 1px solid #333; height: 60px; border-radius: 6px; cursor: pointer; 
+            font-size: 0.7rem; font-weight: bold; position: relative; transition: 0.2s;
+        }
+        .btn-sk:hover { background: #1a1a25; border-color: var(--accent); }
+
+        #log { width: 100%; max-width: 1100px; height: 100px; background: rgba(0,0,0,0.5); margin: 5px auto 0; padding: 10px; font-size: 0.8rem; color: #bbb; overflow-y: auto; border: 1px solid #222; }
+
+        /* MOEDAS */
+        #coin-box { position: absolute; top: 35%; left: 50%; transform: translate(-50%, -50%); display: flex; gap: 15px; z-index: 200; }
+        .v-coin { width: 60px; height: 60px; border-radius: 50%; border: 3px solid var(--accent); background: #111; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; }
+        .spin { animation: flip 0.1s infinite linear; }
+        @keyframes flip { from { transform: rotateY(0deg); } to { transform: rotateY(360deg); } }
+        .h { background: var(--win); } .t { background: var(--lose); opacity: 0.4; }
+
+        .predict-tag { position: absolute; top: -15px; left: 50%; transform: translateX(-50%); font-size: 0.5rem; padding: 2px 8px; border-radius: 3px; z-index: 10; }
     </style>
 </head>
 <body>
 
     <div id="scr-sel" class="screen active">
-        <h1>SQUAD SELECTION [12 SINNERS READY]</h1>
-        <div id="grid-sel" style="display:grid; grid-template-columns:repeat(4,1fr); gap:10px; width:100%; overflow-y:auto; flex:1;"></div>
-        <button onclick="deploy()" id="btn-deploy" style="margin-top:20px; padding:15px 40px; cursor:pointer; font-family:'Press Start 2P'; background:var(--win); border:none; color:white;" disabled>START MISSION</button>
+        <h2 style="font-size:0.8rem; text-align:center;">MANOBIT: SQUAD SELECT</h2>
+        <div id="grid-sel" style="display:grid; grid-template-columns:repeat(4,1fr); gap:8px; width:100%; overflow-y:auto; flex:1;"></div>
+        <button onclick="deploy()" id="btn-deploy" style="margin-top:15px; padding:12px; cursor:pointer; background:var(--win); border:none; color:white; width:100%; font-weight:bold;" disabled>ENGAGE MISSION</button>
     </div>
 
     <div id="scr-bat" class="screen">
@@ -52,15 +81,14 @@
         <div class="battle-grid">
             <div id="squad-area" class="squad-side"></div>
             <div class="enemy-side">
-                <div style="font-size:4rem">👹</div>
-                <div style="color:var(--lose); font-weight:bold; font-size:0.8rem;">CLOCKWORK KING [WAW]</div>
+                <div style="font-size:5rem">👺</div>
+                <div style="color:var(--lose); font-weight:bold; font-size:1rem; margin-top:10px;">CLOCKWORK KING [WAW]</div>
                 <div class="bar" style="width:80%; height:15px;"><div id="e-hp" class="bar-fill" style="background:var(--lose); width:100%"></div></div>
-                <div id="e-hp-txt" style="font-size:0.7rem">10000/10000</div>
-                <div id="enemy-intent" style="margin-top:10px; color:var(--accent); font-size:0.7rem; border:1px solid #522; padding:5px;">ATACANDO: ???</div>
+                <div id="e-hp-txt" style="font-size:0.8rem">10000/10000</div>
+                <div id="enemy-intent" style="margin-top:25px; color:var(--accent); font-size:0.8rem; border:1px solid #411; padding:10px; width:70%; text-align:center;">ALVO: ???</div>
             </div>
         </div>
         <div id="ui-cmd" class="cmd-panel" style="visibility:hidden">
-            <div style="margin-bottom:8px; font-size:0.6rem; font-family:'Press Start 2P';">COMMANDING: <span id="acting-name" style="color:var(--accent)">-</span></div>
             <div id="skill-list" class="skill-grid"></div>
             <div id="log"></div>
         </div>
@@ -68,34 +96,33 @@
 
     <script>
         const sinnersRaw = [
-            { n: "Yi Sang", a: "👤", h: 160, s1:{n:"Poke",b:4,c:2,p:4}, s2:{n:"Crow",b:6,c:3,p:5}, s3:{n:"Execution",b:10,c:2,p:12}, e:{n:"WINGS",b:20,p:30,k:20} },
-            { n: "Faust", a: "👩‍🔬", h: 180, s1:{n:"Analyze",b:5,c:1,p:10}, s2:{n:"Fluid",b:7,c:2,p:7}, s3:{n:"Insight",b:12,c:2,p:10}, e:{n:"REPRESENT",b:18,p:40,k:25} },
-            { n: "Don Q.", a: "🐎", h: 150, s1:{n:"Gallop",b:3,c:3,p:4}, s2:{n:"Charge",b:8,c:2,p:12}, s3:{n:"La Mancha",b:12,c:1,p:40}, e:{n:"JUSTICE",b:25,p:30,k:20} },
-            { n: "Ryoshu", a: "🗡️", h: 140, s1:{n:"Cut",b:5,c:2,p:6}, s2:{n:"Brush",b:8,c:3,p:7}, s3:{n:"F.O.D",b:14,c:2,p:20}, e:{n:"FLAME",b:22,p:45,k:30} },
-            { n: "Meursault", a: "👮", h: 250, s1:{n:"Punch",b:8,c:1,p:8}, s2:{n:"Chain",b:6,c:4,p:5}, s3:{n:"Silent",b:12,c:2,p:12}, e:{n:"CHAINS",b:15,p:50,k:20} },
-            { n: "Hong Lu", a: "👑", h: 170, s1:{n:"Fan",b:5,c:2,p:7}, s2:{n:"Cloud",b:8,c:2,p:12}, s3:{n:"Strike",b:12,c:3,p:9}, e:{n:"LANDSCAPE",b:20,p:35,k:25} },
-            { n: "Heathcliff", a: "😠", h: 190, s1:{n:"Bat",b:4,c:2,p:10}, s2:{n:"Revenge",b:10,c:1,p:25}, s3:{n:"Bodysack",b:12,c:3,p:12}, e:{n:"BODYSACK",b:22,p:35,k:20} },
-            { n: "Ishmael", a: "⚓", h: 180, s1:{n:"Hook",b:6,c:2,p:8}, s2:{n:"Wave",b:8,c:3,p:8}, s3:{n:"Harpoon",b:12,c:1,p:40}, e:{n:"SNAG",b:24,p:30,k:25} },
-            { n: "Rodion", a: "🔨", h: 195, s1:{n:"Gamble",b:5,c:2,p:8}, s2:{n:"Axe",b:7,c:2,p:14}, s3:{n:"Poker",b:11,c:4,p:8}, e:{n:"RIMESHANK",b:20,p:40,k:25} },
-            { n: "Sinclair", a: "🔪", h: 145, s1:{n:"Fear",b:3,c:4,p:5}, s2:{n:"Halberd",b:7,c:3,p:10}, s3:{n:"Blade",b:14,c:2,p:22}, e:{n:"BRANCH",b:26,p:30,k:20} },
-            { n: "Outis", a: "🎖️", h: 175, s1:{n:"Pierce",b:6,c:2,p:8}, s2:{n:"Strategy",b:9,c:2,p:12}, s3:{n:"Order",b:13,c:3,p:10}, e:{n:"EBONYSTEM",b:21,p:40,k:30} },
-            { n: "Gregor", a: "🐛", h: 185, s1:{n:"Claw",b:6,c:2,p:9}, s2:{n:"Insect",b:8,c:3,p:7}, s3:{n:"Apple",b:12,c:2,p:14}, e:{n:"LEGERDEMAIN",b:19,p:40,k:20} }
+            { n: "Yi Sang", a: "👤", h: 160, s1:{n:"ENNUY",b:4,c:2,p:4}, s2:{n:"CROW",b:6,c:3,p:5}, s3:{n:"EXECUTION",b:10,c:2,p:12}, e:{n:"WINGS",b:20,p:30,k:20}, def:{n:"GUARD",b:15,c:1,p:25} },
+            { n: "Faust", a: "👩‍🔬", h: 180, s1:{n:"ANALYZE",b:5,c:1,p:10}, s2:{n:"FLUID",b:7,c:2,p:7}, s3:{n:"INSIGHT",b:12,c:2,p:10}, e:{n:"REP",b:18,p:40,k:25}, def:{n:"BLOCK",b:18,c:1,p:22} },
+            { n: "Don Q.", a: "🐎", h: 150, s1:{n:"GALLOP",b:3,c:3,p:4}, s2:{n:"CHARGE",b:8,c:2,p:12}, s3:{n:"SANCHO",b:12,c:1,p:40}, e:{n:"JUSTICE",b:25,p:30,k:20}, def:{n:"DODGE",b:12,c:1,p:35} },
+            { n: "Ryoshu", a: "🗡️", h: 140, s1:{n:"CUT",b:5,c:2,p:6}, s2:{n:"BRUSH",b:8,c:3,p:7}, s3:{n:"F.O.D",b:14,c:2,p:20}, e:{n:"FLAME",b:22,p:45,k:30}, def:{n:"STANCE",b:10,c:1,p:40} },
+            { n: "Meursault", a: "👮", h: 250, s1:{n:"PUNCH",b:8,c:1,p:8}, s2:{n:"CHAINS",b:6,c:4,p:5}, s3:{n:"SILENT",b:12,c:2,p:12}, e:{n:"CHAINS",b:15,p:50,k:20}, def:{n:"WALL",b:25,c:1,p:20} },
+            { n: "Hong Lu", a: "👑", h: 170, s1:{n:"FAN",b:5,c:2,p:7}, s2:{n:"CLOUD",b:8,c:2,p:12}, s3:{n:"STRIKE",b:12,c:3,p:9}, e:{n:"EGO",b:20,p:35,k:25}, def:{n:"PARRY",b:16,c:1,p:28} },
+            { n: "Heathcliff", a: "😠", h: 190, s1:{n:"BAT",b:4,c:2,p:10}, s2:{n:"REVENGE",b:10,c:1,p:25}, s3:{n:"BODYSACK",b:12,c:3,p:12}, e:{n:"BODYSACK",b:22,p:35,k:20}, def:{n:"COUNTER",b:14,c:1,p:32} },
+            { n: "Ishmael", a: "⚓", h: 180, s1:{n:"HOOK",b:6,c:2,p:8}, s2:{n:"WAVE",b:8,c:3,p:8}, s3:{n:"HARPOON",b:12,c:1,p:40}, e:{n:"SNAG",b:24,p:30,k:25}, def:{n:"BRACE",b:20,c:1,p:25} },
+            { n: "Rodion", a: "🔨", h: 195, s1:{n:"GAMBLE",b:5,c:2,p:8}, s2:{n:"AXE",b:7,c:2,p:14}, s3:{n:"POKER",b:11,c:4,p:8}, e:{n:"RIME",b:20,p:40,k:25}, def:{n:"SHIELD",b:18,c:1,p:30} },
+            { n: "Sinclair", a: "🔪", h: 145, s1:{n:"FEAR",b:3,c:4,p:5}, s2:{n:"HALBERD",b:7,c:3,p:10}, s3:{n:"BLADE",b:14,c:2,p:22}, e:{n:"BRANCH",b:26,p:30,k:20}, def:{n:"STEEL",b:8,c:1,p:45} },
+            { n: "Outis", a: "🎖️", h: 175, s1:{n:"PIERCE",b:6,c:2,p:8}, s2:{n:"STRAT",b:9,c:2,p:12}, s3:{n:"ORDER",b:13,c:3,p:10}, e:{n:"EBONY",b:21,p:40,k:30}, def:{n:"STERN",b:20,c:1,p:20} },
+            { n: "Gregor", a: "🐛", h: 185, s1:{n:"CLAW",b:6,c:2,p:9}, s2:{n:"INSECT",b:8,c:3,p:7}, s3:{n:"APPLE",b:12,c:2,p:14}, e:{n:"LEGER",b:19,p:40,k:20}, def:{n:"HEAL",b:18,c:1,p:25} }
         ];
 
-        let squad = [], enemy = { h: 10000, max: 10000, atk: 52, targetIdx: 0 }, actions = [], curSinnerIdx = 0;
+        let squad = [], enemy = { h: 10000, max: 10000, atk: 58, targetIdx: 0 }, actions = [], curSinnerIdx = 0;
 
-        // GRID SELECTION
         const g = document.getElementById('grid-sel');
         sinnersRaw.forEach(s => {
             const card = document.createElement('div');
-            card.style = "background:#0a0a15; border:1px solid #333; padding:10px; cursor:pointer; text-align:center; border-radius:8px;";
-            card.innerHTML = `<div style="font-size:1.5rem">${s.a}</div><div style="font-size:0.5rem; color: #888;">${s.n}</div>`;
+            card.style = "background:#2a2a32; border:1px solid #444; padding:8px; cursor:pointer; text-align:center; border-radius:4px;";
+            card.innerHTML = `<div style="font-size:1.2rem">${s.a}</div><div style="font-size:0.5rem; color:#bbb;">${s.n}</div>`;
             card.onclick = () => {
                 let idx = squad.findIndex(i => i.n === s.n);
-                if(idx > -1) { squad.splice(idx,1); card.style.borderColor = "#333"; }
+                if(idx > -1) { squad.splice(idx,1); card.style.background = "#2a2a32"; }
                 else if(squad.length < 6) { 
-                    squad.push({...s, cur:s.h, sp:0, id:Math.random(), deck:[s.s1,s.s1,s.s1,s.s2,s.s2,s.s3], hand:[], defending: false}); 
-                    card.style.borderColor = "var(--win)";
+                    squad.push({...s, cur:s.h, sp:0, deck:[s.s1,s.s1,s.s1,s.s2,s.s2,s.s3], hand:[]}); 
+                    card.style.background = "#334433"; 
                 }
                 document.getElementById('btn-deploy').disabled = squad.length === 0;
             };
@@ -103,7 +130,7 @@
         });
 
         function deploy() {
-            document.getElementById('scr-sel').style.display = 'none';
+            document.getElementById('scr-sel').classList.remove('active');
             document.getElementById('scr-bat').classList.add('active');
             renderSquad();
             newTurn();
@@ -112,38 +139,35 @@
         function renderSquad() {
             const area = document.getElementById('squad-area'); area.innerHTML = '';
             squad.forEach((s, i) => {
-                area.innerHTML += `
-                <div class="unit-card" id="u-${i}">
-                    <div class="target-indicator" id="tar-${i}"></div>
-                    <div style="font-size:2rem">${s.a}</div>
-                    <div class="bar"><div id="hp-${i}" class="bar-fill" style="background:var(--win); width:100%"></div></div>
-                    <div class="bar" style="height:4px; background:#111"><div id="sp-${i}" class="bar-fill" style="background:var(--sp); width:50%"></div></div>
-                </div>`;
+                area.innerHTML += `<div class="unit-card" id="u-${i}"><div style="color:var(--lose); font-size:0.5rem; font-weight:bold; height:10px;" id="tar-${i}"></div><div style="font-size:3rem">${s.a}</div><div class="bar"><div id="hp-${i}" class="bar-fill" style="background:var(--win); width:100%"></div></div><div class="bar" style="height:4px;"><div id="sp-${i}" class="bar-fill" style="background:var(--sp); width:50%"></div></div></div>`;
             });
         }
 
         function newTurn() {
             actions = []; curSinnerIdx = 0;
-            squad.forEach(s => { s.defending = false; });
-            
-            // Define Alvo
             enemy.targetIdx = Math.floor(Math.random() * squad.length);
             while(squad[enemy.targetIdx].cur <= 0) enemy.targetIdx = Math.floor(Math.random() * squad.length);
             
-            document.querySelectorAll('.target-indicator').forEach(t => t.innerText = '');
-            document.querySelectorAll('.unit-card').forEach(u => {u.classList.remove('target'); u.classList.remove('defending');});
-            
-            document.getElementById(`tar-${enemy.targetIdx}`).innerText = "TARGETED!";
+            document.querySelectorAll('.unit-card').forEach(u => u.classList.remove('target'));
+            document.querySelectorAll('[id^="tar-"]').forEach(t => t.innerText = "");
             document.getElementById(`u-${enemy.targetIdx}`).classList.add('target');
-            document.getElementById('enemy-intent').innerText = `ATACANDO: ${squad[enemy.targetIdx].n}`;
+            document.getElementById(`tar-${enemy.targetIdx}`).innerText = ">> TARGETED <<";
+            document.getElementById('enemy-intent').innerText = `ALVO: ${squad[enemy.targetIdx].n}`;
             
             squad.forEach(s => {
                 let d = [...s.deck];
                 s.hand = [d.splice(Math.floor(Math.random()*d.length), 1)[0], d.splice(Math.floor(Math.random()*d.length), 1)[0]];
             });
-
             addLog("DANTE", "< O relógio gira. Escolha bem. >");
             askAction();
+        }
+
+        function getPredict(sinner, skill) {
+            let max = skill.b + (skill.c * skill.p);
+            let avg = skill.b + ((skill.c * skill.p) * ((50 + sinner.sp)/100));
+            if (avg > enemy.atk + 5) return {t: "FAVORABLE", c: "pred-win"};
+            if (max < enemy.atk - 2) return {t: "HOPELESS", c: "pred-lose"};
+            return {t: "NEUTRAL", c: "pred-neu"};
         }
 
         function askAction() {
@@ -154,101 +178,91 @@
             document.querySelectorAll('.unit-card').forEach(u => u.classList.remove('acting'));
             document.getElementById(`u-${curSinnerIdx}`).classList.add('acting');
             document.getElementById('ui-cmd').style.visibility = 'visible';
-            document.getElementById('acting-name').innerText = s.n;
 
             const list = document.getElementById('skill-list'); list.innerHTML = '';
             
-            // Skills da mão
             s.hand.forEach(sk => {
                 const b = document.createElement('button'); b.className = 'btn-sk';
-                b.innerHTML = `${sk.n}<br>${sk.c} COINS<br>${sk.b}+${sk.p}`;
+                if(squad.indexOf(s) === enemy.targetIdx) {
+                    let p = getPredict(s, sk);
+                    b.innerHTML += `<div class="predict-tag ${p.c}">${p.t}</div>`;
+                }
+                b.innerHTML += `${sk.n}<br>${sk.c}C | ${sk.b}+${sk.p}`;
                 b.onclick = () => { actions.push({s, sk, type:'atk'}); curSinnerIdx++; askAction(); };
                 list.appendChild(b);
             });
 
-            // EGO Permanente
             const ego = document.createElement('button'); ego.className = 'btn-sk'; ego.style.color = "var(--ego)";
             ego.innerHTML = `EGO: ${s.e.n}<br>-${s.e.k} SP`;
-            ego.onclick = () => { if(s.sp >= -20) { actions.push({s, sk:{...s.e, c:1}, type:'ego'}); s.sp -= s.e.k; curSinnerIdx++; askAction(); } };
+            ego.onclick = () => { 
+                if(s.sp >= -25) { actions.push({s, sk:{...s.e, c:1, n:s.e.n}, type:'ego'}); s.sp -= s.e.k; curSinnerIdx++; askAction(); }
+            };
             list.appendChild(ego);
 
-            // DEFESA (Reduz 50% de dano e anula clash)
-            const def = document.createElement('button'); def.className = 'btn-sk'; def.style.borderColor = "#888";
-            def.innerHTML = `DEFENSE<br>REDUCE 50%`;
-            def.onclick = () => { 
-                s.defending = true; 
-                document.getElementById(`u-${squad.indexOf(s)}`).classList.add('defending');
-                actions.push({s, type:'def'}); 
-                curSinnerIdx++; askAction(); 
-            };
+            const def = document.createElement('button'); def.className = 'btn-sk'; def.style.color = "var(--sp)";
+            if(squad.indexOf(s) === enemy.targetIdx) {
+                let p = getPredict(s, s.def);
+                def.innerHTML += `<div class="predict-tag ${p.c}">${p.t}</div>`;
+            }
+            def.innerHTML += `${s.def.n}<br>${s.def.b}+${s.def.p}`;
+            def.onclick = () => { actions.push({s, sk:s.def, type:'def'}); curSinnerIdx++; askAction(); };
             list.appendChild(def);
         }
 
         async function execute() {
             document.getElementById('ui-cmd').style.visibility = 'hidden';
-            let enemyAttackPrevented = false;
-
+            let clashWin = false;
             for(let a of actions) {
                 if(enemy.h <= 0) break;
-                if(a.type === 'def') continue;
-
                 let isClash = (squad.indexOf(a.s) === enemy.targetIdx);
                 let res = await performAction(a, isClash);
-                if(isClash && res === 'win') enemyAttackPrevented = true;
+                if(isClash && res === 'win') clashWin = true;
             }
-            
-            if(enemy.h > 0 && !enemyAttackPrevented) {
-                let target = squad[enemy.targetIdx];
-                if(target.cur > 0) {
-                    let dmg = target.defending ? Math.floor(enemy.atk * 0.5) : enemy.atk;
-                    target.cur -= dmg;
-                    addLog("ENEMY", `Inimigo atingiu ${target.n} por ${dmg}!`);
-                    if(!target.defending) target.sp = Math.max(-45, target.sp - 5);
+            if(enemy.h > 0 && !clashWin) {
+                let t = squad[enemy.targetIdx];
+                if(t.cur > 0) {
+                    t.cur -= enemy.atk;
+                    addLog("ENEMY", `${t.n} sofreu ${enemy.atk} de dano!`);
+                    t.sp = Math.max(-45, t.sp - 10);
                 }
             }
             updateUI();
-            if(enemy.h <= 0) addLog("VICTORY", "ANORMALIDADE SUPRIMIDA!");
+            if(enemy.h <= 0) addLog("DANTE", "< Suprimido. >");
+            else if(squad.every(s => s.cur <= 0)) addLog("DANTE", "< Falha. >");
             else setTimeout(newTurn, 1000);
         }
 
         async function performAction(a, isClash) {
             const box = document.getElementById('coin-box'); box.innerHTML = '';
-            let total = a.sk.b, coins = [], heads = 0;
-            let chance = (50 + a.s.sp) / 100;
-
+            let total = a.sk.b, heads = 0;
             for(let i=0; i<a.sk.c; i++) {
                 const c = document.createElement('div'); c.className = 'v-coin spin'; c.innerText = '?';
-                box.appendChild(c); coins.push(c);
+                box.appendChild(c);
+                await new Promise(r => setTimeout(r, 200));
+                let h = Math.random() < (50 + a.s.sp)/100;
+                if(h) { total += a.sk.p; heads++; c.className = 'v-coin h'; c.innerText = 'H'; }
+                else { c.className = 'v-coin t'; c.innerText = 'T'; }
             }
-
-            for(let i=0; i<a.sk.c; i++) {
-                await new Promise(r => setTimeout(r, 250));
-                let h = Math.random() < chance;
-                if(h) { total += a.sk.p; heads++; coins[i].className = 'v-coin h'; coins[i].innerText = 'H'; }
-                else { coins[i].className = 'v-coin t'; coins[i].innerText = 'T'; }
-            }
-
-            let clashWin = false;
+            let win = false;
             if(isClash) {
-                if(total > enemy.atk) {
-                    addLog("CLASH", `${a.s.n} VENCEU! +10 SP`);
-                    a.s.sp = Math.min(45, a.s.sp + 10);
-                    enemy.h -= (total * 1.5);
-                    clashWin = true;
+                if(total >= enemy.atk) {
+                    addLog("CLASH", `${a.s.n} VENCEU (${total})!`);
+                    a.s.sp = Math.min(45, a.s.sp + 15);
+                    enemy.h -= (a.type === 'def' ? Math.floor(total * 0.8) : total * 2);
+                    win = true;
                 } else {
-                    addLog("CLASH", `${a.s.n} PERDEU! -10 SP`);
-                    a.s.sp = Math.max(-45, a.s.sp - 10);
+                    addLog("CLASH", `${a.s.n} PERDEU!`);
+                    a.s.sp = Math.max(-45, a.s.sp - 12);
                 }
-            } else {
+            } else if(a.type !== 'def') {
                 enemy.h -= total;
-                addLog("ACTION", `${a.s.n} causou ${total} de dano!`);
+                addLog("HIT", `${a.s.n} causou ${total} de dano!`);
             }
-            
             a.s.sp = Math.min(45, a.s.sp + (heads * 2));
             updateUI();
-            await new Promise(r => setTimeout(r, 500));
+            await new Promise(r => setTimeout(r, 450));
             box.innerHTML = '';
-            return clashWin ? 'win' : 'lose';
+            return win ? 'win' : 'lose';
         }
 
         function updateUI() {
@@ -264,7 +278,7 @@
 
         function addLog(tag, m) {
             const l = document.getElementById('log');
-            l.innerHTML += `<div><span style="color:var(--accent)">[${tag}]</span> ${m}</div>`;
+            l.innerHTML += `<div>[${tag}] ${m}</div>`;
             l.scrollTop = l.scrollHeight;
         }
     </script>
