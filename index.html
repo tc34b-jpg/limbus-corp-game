@@ -2,197 +2,218 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>ManoBit Company: Tactical Balance</title>
+    <title>ManoBit: Clash & Defense</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Press+Start+2P&display=swap');
-        
-        :root {
-            --bg: #05050a; --panel: #11111d; --accent: #ffb347;
-            --win: #4CAF50; --lose: #f44336; --ego: #a333ff; --sp: #33aaff;
-            --border: #2a2a3a;
-        }
-
-        body { margin: 0; background: linear-gradient(135deg, #050510, #141425); color: #e0e0f8; font-family: 'Roboto', sans-serif; overflow: hidden; text-transform: uppercase; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
-        .screen { display: none; width: 95%; max-width: 1100px; height: 90vh; background: var(--panel); border-radius: 20px; box-shadow: 0 0 40px rgba(0,0,0,0.9); border: 2px solid var(--border); flex-direction: column; align-items: center; padding: 20px; box-sizing: border-box; position: relative; }
+        :root { --bg: #05050a; --panel: #0d0d16; --accent: #ffb347; --win: #4CAF50; --lose: #f44336; --ego: #a333ff; --sp: #33aaff; --border: #2a2a3a; }
+        body { margin: 0; background: var(--bg); color: #e0e0f8; font-family: 'Roboto', sans-serif; overflow: hidden; text-transform: uppercase; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        .screen { display: none; width: 98%; max-width: 1200px; height: 95vh; background: var(--panel); border-radius: 15px; border: 2px solid var(--border); flex-direction: column; align-items: center; padding: 15px; box-sizing: border-box; position: relative; }
         .active { display: flex; }
-
-        h1 { font-family: 'Press Start 2P', cursive; color: var(--accent); font-size: 1.1rem; margin-bottom: 20px; text-shadow: 0 0 10px rgba(255,179,71,0.5); }
-
-        /* SELEÇÃO */
-        .char-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; width: 100%; overflow-y: auto; padding: 10px; flex: 1; }
-        .char-card { background: #0a0a15; border: 2px solid var(--border); border-radius: 12px; padding: 12px; cursor: pointer; text-align: center; transition: 0.3s; }
-        .char-card:hover { border-color: var(--accent); transform: scale(1.02); }
-        .char-card.selected { border-color: var(--win); background: #152515; }
-
-        /* BATALHA AREA */
-        .battle-area { display: flex; width: 100%; justify-content: space-between; flex: 1; margin-bottom: 15px; }
-        .squad-side { width: 65%; display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; align-content: center; }
-        .enemy-side { width: 30%; display: flex; flex-direction: column; align-items: center; justify-content: center; border-left: 2px solid var(--border); background: rgba(255,0,0,0.02); border-radius: 0 20px 20px 0; }
+        h1 { font-family: 'Press Start 2P'; font-size: 0.9rem; color: var(--accent); margin-bottom: 10px; }
         
-        .unit-card { background: #08080f; border: 1px solid var(--border); border-radius: 10px; padding: 8px; text-align: center; position: relative; transition: 0.3s; }
-        .unit-card.acting { border-color: var(--accent); box-shadow: 0 0 20px rgba(255,179,71,0.4); transform: scale(1.08); z-index: 10; }
+        .battle-grid { display: flex; width: 100%; flex: 1; gap: 20px; }
+        .squad-side { width: 60%; display: grid; grid-template-columns: repeat(3, 2fr); gap: 10px; align-content: center; }
+        .enemy-side { width: 40%; display: flex; flex-direction: column; align-items: center; justify-content: center; background: rgba(255,0,0,0.05); border-radius: 20px; border: 1px solid #400; }
         
-        /* BARRAS */
-        .bar { width: 100%; height: 8px; background: #000; border-radius: 4px; overflow: hidden; margin: 3px 0; }
-        .bar-fill { height: 100%; transition: 0.5s; }
+        .unit-card { background: #08080f; border: 2px solid var(--border); border-radius: 10px; padding: 8px; text-align: center; transition: 0.3s; position: relative; }
+        .unit-card.target { border-color: var(--lose); box-shadow: 0 0 15px var(--lose); }
+        .unit-card.acting { border-color: var(--accent); transform: scale(1.05); }
+        .unit-card.defending { border-color: #555; background: #1a1a1a; }
 
-        /* COINS VISUAIS */
-        #coin-box { position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%); display: flex; gap: 15px; z-index: 2000; pointer-events: none; }
-        .v-coin { width: 65px; height: 65px; border-radius: 50%; border: 4px solid var(--accent); background: #222; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; font-weight: bold; }
-        .v-coin.spin { animation: flip 0.15s infinite linear; }
-        .v-coin.h { background: var(--win); border-color: #fff; box-shadow: 0 0 15px var(--win); }
-        .v-coin.t { background: var(--lose); border-color: #444; opacity: 0.6; }
+        .bar { width: 100%; height: 6px; background: #000; border-radius: 3px; overflow: hidden; margin: 3px 0; }
+        .bar-fill { height: 100%; transition: 0.4s; }
+        
+        #coin-box { position: absolute; top: 30%; left: 50%; transform: translateX(-50%); display: flex; gap: 10px; z-index: 100; pointer-events: none; }
+        .v-coin { width: 55px; height: 55px; border-radius: 50%; border: 3px solid var(--accent); background: #222; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: bold; }
+        .spin { animation: flip 0.15s infinite linear; }
+        .h { background: var(--win); box-shadow: 0 0 10px var(--win); } 
+        .t { background: var(--lose); opacity: 0.5; }
         @keyframes flip { from { transform: rotateY(0deg); } to { transform: rotateY(360deg); } }
 
-        /* COMANDOS */
-        .cmd-panel { width: 100%; background: #030308; border-top: 2px solid var(--accent); padding: 15px; box-sizing: border-box; display: flex; flex-direction: column; gap: 10px; border-radius: 15px 15px 0 0; }
-        .skill-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
-        .btn-skill { background: #111120; color: #fff; border: 1px solid var(--border); padding: 10px; border-radius: 6px; cursor: pointer; font-size: 0.65rem; transition: 0.2s; font-family: 'Press Start 2P', cursive; font-size: 0.45rem; line-height: 1.5; }
-        .btn-skill:hover { border-color: var(--accent); background: #1a1a2e; }
-        .btn-ego { border-color: var(--ego); color: var(--ego); }
-
-        #log { width: 100%; height: 70px; background: #000; border-radius: 6px; padding: 10px; overflow-y: auto; font-size: 0.75rem; color: #888; border: 1px solid var(--border); font-family: 'Consolas', monospace; }
-        .main-btn { background: var(--win); color: white; border: none; padding: 15px 50px; border-radius: 30px; cursor: pointer; font-family: 'Press Start 2P', cursive; font-size: 0.7rem; }
-        .main-btn:disabled { background: #333; cursor: not-allowed; }
+        .cmd-panel { width: 100%; background: #030308; border-top: 3px solid var(--accent); padding: 15px; box-sizing: border-box; border-radius: 20px 20px 0 0; }
+        .skill-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+        .btn-sk { background: #161625; color: #fff; border: 1px solid #444; padding: 10px; border-radius: 8px; cursor: pointer; font-size: 0.5rem; font-family: 'Press Start 2P'; line-height: 1.4; }
+        .btn-sk:hover { border-color: var(--accent); background: #22223a; }
+        
+        #log { width: 100%; height: 60px; background: #000; margin-top: 10px; padding: 8px; font-size: 0.7rem; color: #999; overflow-y: auto; border: 1px solid #333; }
+        .target-indicator { position: absolute; top: -20px; left: 50%; transform: translateX(-50%); color: var(--lose); font-weight: bold; font-size: 0.6rem; }
     </style>
 </head>
 <body>
 
     <div id="scr-sel" class="screen active">
-        <h1>SQUAD SELECTION [TACTICAL MODE]</h1>
-        <div id="grid" class="char-grid"></div>
-        <button onclick="deploy()" id="btn-go" class="main-btn" disabled>CONFIRM DEPLOY</button>
+        <h1>SQUAD SELECTION [12 SINNERS READY]</h1>
+        <div id="grid-sel" style="display:grid; grid-template-columns:repeat(4,1fr); gap:10px; width:100%; overflow-y:auto; flex:1;"></div>
+        <button onclick="deploy()" id="btn-deploy" style="margin-top:20px; padding:15px 40px; cursor:pointer; font-family:'Press Start 2P'; background:var(--win); border:none; color:white;" disabled>START MISSION</button>
     </div>
 
     <div id="scr-bat" class="screen">
         <div id="coin-box"></div>
-        <div class="battle-area">
-            <div id="squad-ui" class="squad-side"></div>
+        <div class="battle-grid">
+            <div id="squad-area" class="squad-side"></div>
             <div class="enemy-side">
-                <div style="font-size: 5rem;">👹</div>
-                <div style="font-weight:bold; color:var(--lose); margin-bottom:10px;">ANORMALIDADE [RANK: WAW]</div>
-                <div class="bar" style="width:80%; height:18px;"><div id="e-hp" class="bar-fill" style="background:var(--lose); width:100%;"></div></div>
-                <div id="e-hp-txt" style="font-size: 0.7rem;">5000/5000</div>
+                <div style="font-size:4rem">👹</div>
+                <div style="color:var(--lose); font-weight:bold; font-size:0.8rem;">CLOCKWORK KING [WAW]</div>
+                <div class="bar" style="width:80%; height:15px;"><div id="e-hp" class="bar-fill" style="background:var(--lose); width:100%"></div></div>
+                <div id="e-hp-txt" style="font-size:0.7rem">10000/10000</div>
+                <div id="enemy-intent" style="margin-top:10px; color:var(--accent); font-size:0.7rem; border:1px solid #522; padding:5px;">ATACANDO: ???</div>
             </div>
         </div>
-
         <div id="ui-cmd" class="cmd-panel" style="visibility:hidden">
-            <div style="font-size:0.8rem; font-family: 'Press Start 2P';">COMMANDING: <span id="cur-name" style="color:var(--accent)">-</span></div>
-            <div id="skills" class="skill-row"></div>
+            <div style="margin-bottom:8px; font-size:0.6rem; font-family:'Press Start 2P';">COMMANDING: <span id="acting-name" style="color:var(--accent)">-</span></div>
+            <div id="skill-list" class="skill-grid"></div>
             <div id="log"></div>
         </div>
     </div>
 
     <script>
-        // STATUS BALANCEADOS (JUSTO MAS CRUEL)
-        const base = [
-            { n: "Yi Sang", a: "👤", h: 140, s: [{n:"Ennui",b:5,c:2,p:4},{n:"Crow",b:7,c:3,p:5},{n:"Wings",b:10,c:4,p:6}], e:{n:"Wings",b:25,c:1,p:40,k:25} },
-            { n: "Faust", a: "👩‍🔬", h: 155, s: [{n:"S1",b:6,c:1,p:10},{n:"S2",b:8,c:2,p:8},{n:"S3",b:11,c:3,p:9}], e:{n:"Fluid",b:22,c:1,p:45,k:30} },
-            { n: "Don Q.", a: "🐎", h: 130, s: [{n:"S1",b:4,c:3,p:5},{n:"S2",b:8,c:2,p:14},{n:"S3",b:12,c:1,p:35}], e:{n:"Justice",b:30,c:1,p:40,k:25} },
-            { n: "Ryoshu", a: "🗡️", h: 125, s: [{n:"S1",b:6,c:2,p:6},{n:"S2",b:9,c:3,p:8},{n:"S3",b:15,c:2,p:18}], e:{n:"Flame",b:26,c:1,p:50,k:35} },
-            { n: "Meursault", a: "👮", h: 220, s: [{n:"S1",b:8,c:1,p:8},{n:"S2",b:6,c:4,p:4},{n:"S3",b:12,c:2,p:10}], e:{n:"Chain",b:20,c:1,p:50,k:20} },
-            { n: "Hong Lu", a: "👑", h: 145, s: [{n:"S1",b:6,c:2,p:6},{n:"S2",b:8,c:2,p:12},{n:"S3",b:12,c:3,p:8}], e:{n:"Cloud",b:24,c:1,p:40,k:25} },
-            { n: "Heathcliff", a: "😠", h: 160, s: [{n:"S1",b:6,c:2,p:7},{n:"S2",b:11,c:1,p:24},{n:"S3",b:13,c:3,p:10}], e:{n:"Bodysack",b:24,c:1,p:40,k:20} },
-            { n: "Ishmael", a: "⚓", h: 150, s: [{n:"S1",b:6,c:2,p:7},{n:"S2",b:9,c:3,p:7},{n:"S3",b:14,c:1,p:40}], e:{n:"Snag",b:28,c:1,p:35,k:30} },
-            { n: "Rodion", a: "🔨", h: 175, s: [{n:"S1",b:5,c:2,p:8},{n:"S2",b:9,c:2,p:13},{n:"S3",b:12,c:4,p:8}], e:{n:"Rime",b:23,c:1,p:45,k:25} },
-            { n: "Sinclair", a: "🔪", h: 135, s: [{n:"S1",b:4,c:4,p:5},{n:"S2",b:7,c:3,p:9},{n:"S3",b:15,c:2,p:25}], e:{n:"Branch",b:28,c:1,p:38,k:25} },
-            { n: "Outis", a: "🎖️", h: 150, s: [{n:"S1",b:7,c:2,p:7},{n:"S2",b:9,c:2,p:14},{n:"S3",b:13,c:3,p:11}], e:{n:"Stem",b:25,c:1,p:42,k:30} },
-            { n: "Gregor", a: "🐛", h: 165, s: [{n:"S1",b:6,c:2,p:8},{n:"S2",b:8,c:3,p:7},{n:"S3",b:12,c:2,p:15}], e:{n:"Leger",b:22,c:1,p:45,k:25} }
+        const sinnersRaw = [
+            { n: "Yi Sang", a: "👤", h: 160, s1:{n:"Poke",b:4,c:2,p:4}, s2:{n:"Crow",b:6,c:3,p:5}, s3:{n:"Execution",b:10,c:2,p:12}, e:{n:"WINGS",b:20,p:30,k:20} },
+            { n: "Faust", a: "👩‍🔬", h: 180, s1:{n:"Analyze",b:5,c:1,p:10}, s2:{n:"Fluid",b:7,c:2,p:7}, s3:{n:"Insight",b:12,c:2,p:10}, e:{n:"REPRESENT",b:18,p:40,k:25} },
+            { n: "Don Q.", a: "🐎", h: 150, s1:{n:"Gallop",b:3,c:3,p:4}, s2:{n:"Charge",b:8,c:2,p:12}, s3:{n:"La Mancha",b:12,c:1,p:40}, e:{n:"JUSTICE",b:25,p:30,k:20} },
+            { n: "Ryoshu", a: "🗡️", h: 140, s1:{n:"Cut",b:5,c:2,p:6}, s2:{n:"Brush",b:8,c:3,p:7}, s3:{n:"F.O.D",b:14,c:2,p:20}, e:{n:"FLAME",b:22,p:45,k:30} },
+            { n: "Meursault", a: "👮", h: 250, s1:{n:"Punch",b:8,c:1,p:8}, s2:{n:"Chain",b:6,c:4,p:5}, s3:{n:"Silent",b:12,c:2,p:12}, e:{n:"CHAINS",b:15,p:50,k:20} },
+            { n: "Hong Lu", a: "👑", h: 170, s1:{n:"Fan",b:5,c:2,p:7}, s2:{n:"Cloud",b:8,c:2,p:12}, s3:{n:"Strike",b:12,c:3,p:9}, e:{n:"LANDSCAPE",b:20,p:35,k:25} },
+            { n: "Heathcliff", a: "😠", h: 190, s1:{n:"Bat",b:4,c:2,p:10}, s2:{n:"Revenge",b:10,c:1,p:25}, s3:{n:"Bodysack",b:12,c:3,p:12}, e:{n:"BODYSACK",b:22,p:35,k:20} },
+            { n: "Ishmael", a: "⚓", h: 180, s1:{n:"Hook",b:6,c:2,p:8}, s2:{n:"Wave",b:8,c:3,p:8}, s3:{n:"Harpoon",b:12,c:1,p:40}, e:{n:"SNAG",b:24,p:30,k:25} },
+            { n: "Rodion", a: "🔨", h: 195, s1:{n:"Gamble",b:5,c:2,p:8}, s2:{n:"Axe",b:7,c:2,p:14}, s3:{n:"Poker",b:11,c:4,p:8}, e:{n:"RIMESHANK",b:20,p:40,k:25} },
+            { n: "Sinclair", a: "🔪", h: 145, s1:{n:"Fear",b:3,c:4,p:5}, s2:{n:"Halberd",b:7,c:3,p:10}, s3:{n:"Blade",b:14,c:2,p:22}, e:{n:"BRANCH",b:26,p:30,k:20} },
+            { n: "Outis", a: "🎖️", h: 175, s1:{n:"Pierce",b:6,c:2,p:8}, s2:{n:"Strategy",b:9,c:2,p:12}, s3:{n:"Order",b:13,c:3,p:10}, e:{n:"EBONYSTEM",b:21,p:40,k:30} },
+            { n: "Gregor", a: "🐛", h: 185, s1:{n:"Claw",b:6,c:2,p:9}, s2:{n:"Insect",b:8,c:3,p:7}, s3:{n:"Apple",b:12,c:2,p:14}, e:{n:"LEGERDEMAIN",b:19,p:40,k:20} }
         ];
 
-        let squad = [], enemy = { h: 5000, max: 5000, atk: 55 }, curIdx = 0, actions = [];
+        let squad = [], enemy = { h: 10000, max: 10000, atk: 52, targetIdx: 0 }, actions = [], curSinnerIdx = 0;
 
-        // SELEÇÃO
-        const grid = document.getElementById('grid');
-        base.forEach(s => {
-            const c = document.createElement('div'); c.className = 'char-card';
-            c.innerHTML = `<div style="font-size:1.8rem">${s.a}</div><div style="font-size:0.6rem; margin-top:5px;">${s.n}</div>`;
-            c.onclick = () => {
-                let i = squad.findIndex(it => it.n === s.n);
-                if(i > -1) { squad.splice(i,1); c.classList.remove('selected'); }
-                else if(squad.length < 6) { squad.push({...s, cur: s.h, sp: 0, def: false, id: Math.random()}); c.classList.add('selected'); }
-                document.getElementById('btn-go').disabled = (squad.length === 0);
+        // GRID SELECTION
+        const g = document.getElementById('grid-sel');
+        sinnersRaw.forEach(s => {
+            const card = document.createElement('div');
+            card.style = "background:#0a0a15; border:1px solid #333; padding:10px; cursor:pointer; text-align:center; border-radius:8px;";
+            card.innerHTML = `<div style="font-size:1.5rem">${s.a}</div><div style="font-size:0.5rem; color: #888;">${s.n}</div>`;
+            card.onclick = () => {
+                let idx = squad.findIndex(i => i.n === s.n);
+                if(idx > -1) { squad.splice(idx,1); card.style.borderColor = "#333"; }
+                else if(squad.length < 6) { 
+                    squad.push({...s, cur:s.h, sp:0, id:Math.random(), deck:[s.s1,s.s1,s.s1,s.s2,s.s2,s.s3], hand:[], defending: false}); 
+                    card.style.borderColor = "var(--win)";
+                }
+                document.getElementById('btn-deploy').disabled = squad.length === 0;
             };
-            grid.appendChild(c);
+            g.appendChild(card);
         });
 
         function deploy() {
-            document.getElementById('scr-sel').classList.remove('active');
+            document.getElementById('scr-sel').style.display = 'none';
             document.getElementById('scr-bat').classList.add('active');
-            const area = document.getElementById('squad-ui'); area.innerHTML = '';
-            squad.forEach(s => {
-                area.innerHTML += `<div class="unit-card" id="u-${s.id}">
-                    <div style="font-size:1.8rem">${s.a}</div>
-                    <div class="bar"><div id="hp-${s.id}" class="bar-fill" style="background:var(--win); width:100%"></div></div>
-                    <div class="bar" style="height:4px"><div id="sp-${s.id}" class="bar-fill" style="background:var(--sp); width:50%"></div></div>
-                </div>`;
-            });
-            startTurn();
+            renderSquad();
+            newTurn();
         }
 
-        function startTurn() {
-            actions = []; curIdx = 0;
-            squad.forEach(s => s.def = false);
-            addLog("dante", "< Tick... Tock... Sem erros desta vez. >");
+        function renderSquad() {
+            const area = document.getElementById('squad-area'); area.innerHTML = '';
+            squad.forEach((s, i) => {
+                area.innerHTML += `
+                <div class="unit-card" id="u-${i}">
+                    <div class="target-indicator" id="tar-${i}"></div>
+                    <div style="font-size:2rem">${s.a}</div>
+                    <div class="bar"><div id="hp-${i}" class="bar-fill" style="background:var(--win); width:100%"></div></div>
+                    <div class="bar" style="height:4px; background:#111"><div id="sp-${i}" class="bar-fill" style="background:var(--sp); width:50%"></div></div>
+                </div>`;
+            });
+        }
+
+        function newTurn() {
+            actions = []; curSinnerIdx = 0;
+            squad.forEach(s => { s.defending = false; });
+            
+            // Define Alvo
+            enemy.targetIdx = Math.floor(Math.random() * squad.length);
+            while(squad[enemy.targetIdx].cur <= 0) enemy.targetIdx = Math.floor(Math.random() * squad.length);
+            
+            document.querySelectorAll('.target-indicator').forEach(t => t.innerText = '');
+            document.querySelectorAll('.unit-card').forEach(u => {u.classList.remove('target'); u.classList.remove('defending');});
+            
+            document.getElementById(`tar-${enemy.targetIdx}`).innerText = "TARGETED!";
+            document.getElementById(`u-${enemy.targetIdx}`).classList.add('target');
+            document.getElementById('enemy-intent').innerText = `ATACANDO: ${squad[enemy.targetIdx].n}`;
+            
+            squad.forEach(s => {
+                let d = [...s.deck];
+                s.hand = [d.splice(Math.floor(Math.random()*d.length), 1)[0], d.splice(Math.floor(Math.random()*d.length), 1)[0]];
+            });
+
+            addLog("DANTE", "< O relógio gira. Escolha bem. >");
             askAction();
         }
 
         function askAction() {
-            if(curIdx >= squad.length) return execute();
-            const s = squad[curIdx];
-            if(s.cur <= 0) { curIdx++; return askAction(); }
+            if(curSinnerIdx >= squad.length) return execute();
+            const s = squad[curSinnerIdx];
+            if(s.cur <= 0) { curSinnerIdx++; return askAction(); }
 
             document.querySelectorAll('.unit-card').forEach(u => u.classList.remove('acting'));
-            document.getElementById(`u-${s.id}`).classList.add('acting');
+            document.getElementById(`u-${curSinnerIdx}`).classList.add('acting');
             document.getElementById('ui-cmd').style.visibility = 'visible';
-            document.getElementById('cur-name').innerText = s.n;
+            document.getElementById('acting-name').innerText = s.n;
 
-            const list = document.getElementById('skills'); list.innerHTML = '';
-            s.s.forEach(sk => {
-                const b = document.createElement('button'); b.className = 'btn-skill';
-                let chance = Math.floor(50 + (s.sp)); 
-                b.innerHTML = `${sk.n}<br>${sk.c} COINS<br><span style="color:var(--sp)">SP CHANCE: ${chance}%</span>`;
-                b.onclick = () => { actions.push({s, sk, type:'atk'}); curIdx++; askAction(); };
+            const list = document.getElementById('skill-list'); list.innerHTML = '';
+            
+            // Skills da mão
+            s.hand.forEach(sk => {
+                const b = document.createElement('button'); b.className = 'btn-sk';
+                b.innerHTML = `${sk.n}<br>${sk.c} COINS<br>${sk.b}+${sk.p}`;
+                b.onclick = () => { actions.push({s, sk, type:'atk'}); curSinnerIdx++; askAction(); };
                 list.appendChild(b);
             });
 
-            const ego = document.createElement('button'); ego.className = 'btn-skill btn-ego';
-            ego.innerHTML = `E.G.O<br>${s.e.n}<br>-${s.e.k} SP`;
-            ego.onclick = () => { if(s.sp >= -20) { actions.push({s, sk:s.e, type:'ego'}); s.sp -= s.e.k; curIdx++; askAction(); } };
+            // EGO Permanente
+            const ego = document.createElement('button'); ego.className = 'btn-sk'; ego.style.color = "var(--ego)";
+            ego.innerHTML = `EGO: ${s.e.n}<br>-${s.e.k} SP`;
+            ego.onclick = () => { if(s.sp >= -20) { actions.push({s, sk:{...s.e, c:1}, type:'ego'}); s.sp -= s.e.k; curSinnerIdx++; askAction(); } };
             list.appendChild(ego);
 
-            const def = document.createElement('button'); def.className = 'btn-skill';
-            def.innerHTML = `DEFENSE<br>50% REDUC.`;
-            def.onclick = () => { s.def = true; curIdx++; askAction(); };
+            // DEFESA (Reduz 50% de dano e anula clash)
+            const def = document.createElement('button'); def.className = 'btn-sk'; def.style.borderColor = "#888";
+            def.innerHTML = `DEFENSE<br>REDUCE 50%`;
+            def.onclick = () => { 
+                s.defending = true; 
+                document.getElementById(`u-${squad.indexOf(s)}`).classList.add('defending');
+                actions.push({s, type:'def'}); 
+                curSinnerIdx++; askAction(); 
+            };
             list.appendChild(def);
         }
 
         async function execute() {
             document.getElementById('ui-cmd').style.visibility = 'hidden';
+            let enemyAttackPrevented = false;
+
             for(let a of actions) {
                 if(enemy.h <= 0) break;
-                await performAction(a);
+                if(a.type === 'def') continue;
+
+                let isClash = (squad.indexOf(a.s) === enemy.targetIdx);
+                let res = await performAction(a, isClash);
+                if(isClash && res === 'win') enemyAttackPrevented = true;
             }
-            if(enemy.h > 0) {
-                await new Promise(r => setTimeout(r, 600));
-                let targets = squad.filter(s => s.cur > 0);
-                if(targets.length > 0) {
-                    let t = targets[Math.floor(Math.random()*targets.length)];
-                    let dmg = t.def ? Math.floor(enemy.atk * 0.5) : enemy.atk + Math.floor(Math.random()*10);
-                    t.cur -= dmg;
-                    t.sp = Math.max(-45, t.sp - 5);
-                    addLog("enemy", `${t.n} sofreu ${dmg} de dano! Sanidade caindo.`);
+            
+            if(enemy.h > 0 && !enemyAttackPrevented) {
+                let target = squad[enemy.targetIdx];
+                if(target.cur > 0) {
+                    let dmg = target.defending ? Math.floor(enemy.atk * 0.5) : enemy.atk;
+                    target.cur -= dmg;
+                    addLog("ENEMY", `Inimigo atingiu ${target.n} por ${dmg}!`);
+                    if(!target.defending) target.sp = Math.max(-45, target.sp - 5);
                 }
             }
             updateUI();
-            if(enemy.h <= 0) addLog("dante", "< Alvo Suprimido. Excelente trabalho, Gerente. >");
-            else if(squad.every(s => s.cur <= 0)) addLog("dante", "< O relógio parou. Falha Total. >");
-            else setTimeout(startTurn, 1000);
+            if(enemy.h <= 0) addLog("VICTORY", "ANORMALIDADE SUPRIMIDA!");
+            else setTimeout(newTurn, 1000);
         }
 
-        async function performAction(a) {
+        async function performAction(a, isClash) {
             const box = document.getElementById('coin-box'); box.innerHTML = '';
-            let total = a.sk.b, coins = [], successCount = 0;
+            let total = a.sk.b, coins = [], heads = 0;
             let chance = (50 + a.s.sp) / 100;
 
             for(let i=0; i<a.sk.c; i++) {
@@ -201,40 +222,49 @@
             }
 
             for(let i=0; i<a.sk.c; i++) {
-                await new Promise(r => setTimeout(r, 350));
-                let heads = Math.random() < chance;
-                if(heads) { 
-                    total += a.sk.p; successCount++;
-                    coins[i].className = 'v-coin h'; coins[i].innerText = 'H'; 
-                } else { 
-                    coins[i].className = 'v-coin t'; coins[i].innerText = 'T'; 
+                await new Promise(r => setTimeout(r, 250));
+                let h = Math.random() < chance;
+                if(h) { total += a.sk.p; heads++; coins[i].className = 'v-coin h'; coins[i].innerText = 'H'; }
+                else { coins[i].className = 'v-coin t'; coins[i].innerText = 'T'; }
+            }
+
+            let clashWin = false;
+            if(isClash) {
+                if(total > enemy.atk) {
+                    addLog("CLASH", `${a.s.n} VENCEU! +10 SP`);
+                    a.s.sp = Math.min(45, a.s.sp + 10);
+                    enemy.h -= (total * 1.5);
+                    clashWin = true;
+                } else {
+                    addLog("CLASH", `${a.s.n} PERDEU! -10 SP`);
+                    a.s.sp = Math.max(-45, a.s.sp - 10);
                 }
+            } else {
+                enemy.h -= total;
+                addLog("ACTION", `${a.s.n} causou ${total} de dano!`);
             }
             
-            // Ganha SP ao acertar moedas
-            a.s.sp = Math.min(45, a.s.sp + (successCount * 2));
-
+            a.s.sp = Math.min(45, a.s.sp + (heads * 2));
+            updateUI();
             await new Promise(r => setTimeout(r, 500));
-            enemy.h -= total;
-            addLog("sinner", `${a.s.n} causou ${total} de dano!`);
-            updateUI(); box.innerHTML = '';
+            box.innerHTML = '';
+            return clashWin ? 'win' : 'lose';
         }
 
         function updateUI() {
             document.getElementById('e-hp').style.width = (enemy.h/enemy.max*100)+'%';
             document.getElementById('e-hp-txt').innerText = `${Math.max(0, enemy.h)}/${enemy.max}`;
-            squad.forEach(s => {
-                document.getElementById(`hp-${s.id}`).style.width = (Math.max(0, s.cur)/s.h*100)+'%';
-                // SP bar: map -45..45 to 0..100%
-                let spPercent = ((s.sp + 45) / 90) * 100;
-                document.getElementById(`sp-${s.id}`).style.width = spPercent+'%';
+            squad.forEach((s, i) => {
+                if(document.getElementById(`hp-${i}`)) {
+                    document.getElementById(`hp-${i}`).style.width = (Math.max(0, s.cur)/s.h*100)+'%';
+                    document.getElementById(`sp-${i}`).style.width = ((s.sp + 45)/90*100)+'%';
+                }
             });
         }
 
-        function addLog(type, m) {
+        function addLog(tag, m) {
             const l = document.getElementById('log');
-            let color = type === 'dante' ? 'var(--accent)' : type === 'enemy' ? 'var(--lose)' : 'var(--win)';
-            l.innerHTML += `<div><span style="color:${color}">></span> ${m}</div>`;
+            l.innerHTML += `<div><span style="color:var(--accent)">[${tag}]</span> ${m}</div>`;
             l.scrollTop = l.scrollHeight;
         }
     </script>
