@@ -2,120 +2,130 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>2dCompany: Tactical Command</title>
+    <title>ManoBit Company: The 12 Sinners</title>
     <style>
-        :root { --blood: #880000; --gold: #d4af37; --bg: #0a0a0a; --panel: #151515; }
+        :root { --blood: #880000; --gold: #d4af37; --bg: #0a0a0a; --panel: #151515; --terminal: #33ff33; }
         body { margin: 0; background: var(--bg); color: #ddd; font-family: 'Consolas', monospace; text-transform: uppercase; }
         
         .screen { display: none; height: 100vh; flex-direction: column; align-items: center; justify-content: center; }
         .active { display: flex; }
 
-        /* SELEÇÃO */
-        .char-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; margin: 20px; }
+        /* GRID DE SELEÇÃO - Ajustado para 12 */
+        .char-grid { 
+            display: grid; 
+            grid-template-columns: repeat(4, 1fr); 
+            gap: 10px; 
+            max-width: 800px; 
+            margin: 20px; 
+        }
         .char-card { 
-            background: var(--panel); border: 1px solid #333; padding: 10px; 
-            cursor: pointer; text-align: center; transition: 0.2s;
+            background: var(--panel); border: 1px solid #333; padding: 15px; 
+            cursor: pointer; text-align: center; transition: 0.2s; font-size: 0.8rem;
         }
-        .char-card.selected { border: 2px solid var(--gold); box-shadow: 0 0 10px var(--gold); }
+        .char-card:hover { border-color: var(--gold); }
+        .char-card.selected { border: 2px solid var(--gold); background: #221a00; color: var(--gold); }
 
-        /* ÁREA DE BATALHA */
+        /* BATALHA */
         .battle-container { display: flex; flex-direction: column; align-items: center; width: 95%; }
-        .units-row { display: flex; gap: 15px; flex-wrap: wrap; justify-content: center; margin-bottom: 20px; }
+        .units-row { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-bottom: 20px; }
         .unit-box { 
-            width: 120px; border: 1px solid #444; padding: 5px; background: #111; 
-            transition: 0.3s; position: relative;
+            width: 110px; border: 1px solid #444; padding: 5px; background: #111; 
+            transition: 0.3s; text-align: center;
         }
-        .unit-box.acting { border-color: var(--gold); transform: scale(1.05); }
-        .hp-bar { width: 100%; height: 8px; background: #222; margin-top: 5px; }
-        .hp-fill { height: 100%; background: #44ff44; transition: 0.3s; }
+        .unit-box.acting { border-color: var(--gold); box-shadow: 0 0 10px var(--gold); z-index: 10; }
+        .hp-bar { width: 100%; height: 6px; background: #222; margin-top: 5px; }
+        .hp-fill { height: 100%; background: var(--terminal); transition: 0.3s; }
 
-        /* COMANDOS */
         .command-panel { 
-            background: var(--panel); border: 2px solid var(--gold); 
-            padding: 15px; width: 80%; display: flex; justify-content: space-around;
+            background: rgba(20,20,20,0.95); border: 2px solid var(--gold); 
+            padding: 15px; width: 85%; display: flex; flex-direction: column; align-items: center;
         }
         .skill-btn { 
-            background: #222; color: var(--gold); border: 1px solid var(--gold);
-            padding: 8px; cursor: pointer; font-size: 0.7rem;
+            background: #000; color: var(--gold); border: 1px solid var(--gold);
+            padding: 10px 20px; cursor: pointer; font-size: 0.8rem; transition: 0.2s;
         }
         .skill-btn:hover { background: var(--gold); color: #000; }
 
         #log { 
-            width: 80%; height: 80px; background: #000; border: 1px solid #333; 
-            margin-top: 10px; overflow-y: auto; padding: 10px; font-size: 0.8rem;
+            width: 85%; height: 100px; background: #000; border: 1px solid #333; 
+            margin-top: 10px; overflow-y: auto; padding: 10px; font-size: 0.75rem; color: #aaa;
         }
 
-        button.main-btn { 
-            background: var(--blood); color: white; border: none; 
-            padding: 10px 30px; cursor: pointer; font-weight: bold; margin-top: 10px;
-        }
+        .main-btn { background: var(--blood); color: white; border: none; padding: 12px 40px; cursor: pointer; font-weight: bold; }
+        .main-btn:disabled { background: #333; cursor: not-allowed; }
     </style>
 </head>
 <body>
 
     <div id="scr-select" class="screen active">
-        <h2>Selecione o Esquadrão (1/6)</h2>
+        <h1 style="color: var(--gold); letter-spacing: 5px;">L C B - SQUAD SELECTION</h1>
+        <p>Selecione de 1 a 6 Sinners para a missão:</p>
         <div id="grid" class="char-grid"></div>
-        <button class="main-btn" onclick="startBattle()">INICIAR OPERAÇÃO</button>
+        <button class="main-btn" id="btn-deploy" onclick="startBattle()">DEPLOY SQUAD</button>
     </div>
 
     <div id="scr-battle" class="screen">
         <div class="battle-container">
-            <div class="unit-box" style="width: 250px; border-color: var(--blood);">
-                <div id="e-name">ANORMALIDADE</div>
+            <div class="unit-box" style="width: 300px; border-color: var(--blood); margin-bottom: 30px;">
+                <div id="e-name" style="color: var(--blood); font-weight: bold;">[ ABNORMALITY ]</div>
                 <div class="hp-bar"><div id="e-hp" class="hp-fill" style="background: var(--blood); width: 100%;"></div></div>
+                <small id="e-hp-text">600/600</small>
             </div>
-
-            <div style="margin: 20px;">VS</div>
 
             <div id="player-row" class="units-row"></div>
         </div>
 
         <div id="command-ui" class="command-panel" style="visibility: hidden;">
-            <div id="acting-info">ESCOLHA A SKILL DE: <span id="current-sinner-name" style="color:var(--gold)">-</span></div>
-            <div id="skills-list" style="display: flex; gap: 10px;">
-                </div>
+            <div style="margin-bottom: 10px;">ORDEM PARA: <span id="current-sinner-name" style="color:var(--gold)">-</span></div>
+            <div id="skills-list" style="display: flex; gap: 15px;"></div>
         </div>
 
         <div id="log"></div>
     </div>
 
     <script>
+        // A LISTA SAGRADA DOS 12 PECADORES
         const sinnersBase = [
-            { name: "Yi Sang", hp: 100, skills: [{n: "Ennui", d: 15}, {n: "Crow's Eye", d: 25}] },
-            { name: "Faust", hp: 110, skills: [{n: "Execution", d: 20}, {n: "Analysis", d: 30}] },
-            { name: "Don Quixote", hp: 90, skills: [{n: "For Justice!", d: 35}, {n: "La Mancha", d: 15}] },
-            { name: "Ryoshu", hp: 95, skills: [{n: "P.O.D", d: 40}, {n: "Brush", d: 20}] },
-            { name: "Meursault", hp: 160, skills: [{n: "Chains", d: 10}, {n: "Pursuance", d: 22}] },
-            { name: "Heathcliff", hp: 125, skills: [{n: "Bodysack", d: 28}, {n: "Bat Strike", d: 18}] },
+            { name: "Yi Sang", hp: 100, skills: [{n: "Crow's Eye View", d: 18}, {n: "Ennui", d: 25}] },
+            { name: "Faust", hp: 115, skills: [{n: "Execution", d: 22}, {n: "Analysis", d: 30}] },
+            { name: "Don Quixote", hp: 95, skills: [{n: "For Justice!", d: 35}, {n: "Galloping", d: 20}] },
+            { name: "Ryoshu", hp: 90, skills: [{n: "P.O.D.", d: 40}, {n: "4th Match Flame", d: 25}] },
+            { name: "Meursault", hp: 160, skills: [{n: "Chains of Others", d: 12}, {n: "Pursuance", d: 20}] },
+            { name: "Hong Lu", hp: 105, skills: [{n: "Cloud Cutter", d: 25}, {n: "Whirligig", d: 18}] },
+            { name: "Heathcliff", hp: 120, skills: [{n: "Bodysack", d: 28}, {n: "Upbeat", d: 22}] },
+            { name: "Ishmael", hp: 110, skills: [{n: "Snagharpoon", d: 24}, {n: "Ardor Blossom", d: 32}] },
+            { name: "Rodion", hp: 130, skills: [{n: "Sledgehammer", d: 26}, {n: "Rime Shank", d: 15}] },
+            { name: "Dante", hp: 100, skills: [{n: "Clock Head", d: 10}, {n: "Rewind", d: 5}] },
+            { name: "Outis", hp: 110, skills: [{n: "To the Path", d: 28}, {n: "Ebony Stem", d: 22}] },
+            { name: "Gregor", hp: 125, skills: [{n: "Magical Bullet", d: 20}, {n: "Legerdemain", d: 24}] }
         ];
 
         let squad = [];
-        let enemy = { hp: 600, maxHp: 600, atk: 30 };
-        let turnQueue = [];
+        let enemy = { name: "Doomed Wanderer", hp: 800, maxHp: 800, atk: 35 };
         let currentSinnerIdx = 0;
         let actionsThisTurn = [];
 
-        // Inicializa Grid
+        // Montar a seleção
         const grid = document.getElementById('grid');
-        sinnersBase.forEach((s, i) => {
+        sinnersBase.forEach(s => {
             const card = document.createElement('div');
             card.className = 'char-card';
             card.innerHTML = s.name;
             card.onclick = () => {
-                if(squad.find(it => it.name === s.name)) {
-                    squad = squad.filter(it => it.name !== s.name);
+                const found = squad.findIndex(it => it.name === s.name);
+                if(found > -1) {
+                    squad.splice(found, 1);
                     card.classList.remove('selected');
                 } else if(squad.length < 6) {
                     squad.push({...s, curHp: s.hp});
                     card.classList.add('selected');
                 }
+                document.getElementById('btn-deploy').disabled = squad.length === 0;
             };
             grid.appendChild(card);
         });
 
         function startBattle() {
-            if(squad.length < 1) return alert("Escolha pelo menos 1!");
             document.getElementById('scr-select').classList.remove('active');
             document.getElementById('scr-battle').classList.add('active');
             renderSquad();
@@ -128,6 +138,7 @@
             squad.forEach((s, i) => {
                 row.innerHTML += `
                     <div class="unit-box" id="unit-${i}">
+                        <div style="font-size:0.7rem; color:var(--gold)">#${i+1}</div>
                         <div style="font-size:0.8rem">${s.name}</div>
                         <div class="hp-bar"><div id="hp-${i}" class="hp-fill" style="width: 100%;"></div></div>
                     </div>`;
@@ -137,7 +148,7 @@
         function startNewTurn() {
             actionsThisTurn = [];
             currentSinnerIdx = 0;
-            addLog("--- NOVO TURNO: PLANEJAMENTO ---");
+            addLog("--- FASE DE PLANEJAMENTO ---");
             prepareNextAction();
         }
 
@@ -165,46 +176,50 @@
                 const btn = document.createElement('button');
                 btn.className = 'skill-btn';
                 btn.innerText = sk.n;
-                btn.onclick = () => selectSkill(sk);
+                btn.onclick = () => {
+                    actionsThisTurn.push({ sinner: squad[currentSinnerIdx], skill: sk });
+                    currentSinnerIdx++;
+                    prepareNextAction();
+                };
                 list.appendChild(btn);
             });
         }
 
-        function selectSkill(skill) {
-            actionsThisTurn.push({ sinner: squad[currentSinnerIdx], skill: skill });
-            currentSinnerIdx++;
-            prepareNextAction();
-        }
-
         async function executePhase() {
             document.getElementById('command-ui').style.visibility = 'hidden';
-            
-            // Ataque dos Sinners
+            document.querySelectorAll('.unit-box').forEach(b => b.classList.remove('acting'));
+
+            // Ataque do Time
             for(let action of actionsThisTurn) {
                 if(enemy.hp <= 0) break;
                 await new Promise(r => setTimeout(r, 600));
-                let dmg = action.skill.d + Math.floor(Math.random() * 10);
+                let dmg = action.skill.d + Math.floor(Math.random() * 8);
                 enemy.hp -= dmg;
-                addLog(`${action.sinner.name} usou ${action.skill.n} -> ${dmg} DANO`);
+                addLog(`<span style="color:var(--gold)">${action.sinner.name}</span> usou ${action.skill.n}: ${dmg} de dano!`);
                 updateUI();
             }
 
-            // Ataque da Anormalidade
+            // Contra-ataque do Inimigo
             if(enemy.hp > 0) {
                 await new Promise(r => setTimeout(r, 800));
-                let target = squad[Math.floor(Math.random() * squad.length)];
-                if(target.curHp > 0) {
-                    target.curHp -= enemy.atk;
-                    addLog(`<span style="color:var(--blood)">Inimigo atacou ${target.name}!</span>`);
-                    updateUI();
+                // Inimigo ataca 1 ou 2 vezes dependendo do tamanho do squad
+                let attacks = squad.length > 3 ? 2 : 1;
+                for(let i=0; i<attacks; i++) {
+                    let alive = squad.filter(s => s.curHp > 0);
+                    if(alive.length > 0) {
+                        let target = alive[Math.floor(Math.random() * alive.length)];
+                        target.curHp -= enemy.atk;
+                        addLog(`<span style="color:var(--blood)">Inimigo golpeia ${target.name} por ${enemy.atk}!</span>`);
+                        updateUI();
+                    }
                 }
             } else {
-                addLog("VITÓRIA TOTAL!");
+                addLog("ANORMALIDADE SUPRIMIDA. BOM TRABALHO, GERENTE.");
                 return;
             }
 
             if(squad.every(s => s.curHp <= 0)) {
-                addLog("DERROTA... O BUSÃO QUEBROU.");
+                addLog("MISSÃO FALHOU. TODOS OS SINNERS FORAM ABATIDOS.");
             } else {
                 setTimeout(startNewTurn, 1000);
             }
@@ -212,6 +227,7 @@
 
         function updateUI() {
             document.getElementById('e-hp').style.width = (Math.max(0, enemy.hp) / enemy.maxHp * 100) + "%";
+            document.getElementById('e-hp-text').innerText = `${Math.max(0, enemy.hp)}/${enemy.maxHp}`;
             squad.forEach((s, i) => {
                 const fill = document.getElementById(`hp-${i}`);
                 if(fill) fill.style.width = (Math.max(0, s.curHp) / s.hp * 100) + "%";
