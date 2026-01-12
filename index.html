@@ -3,187 +3,195 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ManoBit Company: Drive or Die</title>
+    <title>ManoBit Company: Squad Selection</title>
     <style>
-        /* CSS - Estética Industrial/Distópica */
         :root {
-            --blood-red: #8b0000;
-            --gold: #d4af37;
-            --dark-gray: #1a1a1b;
-            --terminal-green: #33ff33;
+            --blood: #660000;
+            --gold: #c5a059;
+            --bg: #0d0d0d;
+            --panel: #1a1a1a;
         }
 
         body {
-            margin: 0;
-            background: #050505;
-            color: #e0e0e0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            overflow: hidden;
-            text-transform: uppercase;
+            margin: 0; background: var(--bg); color: #e0e0e0;
+            font-family: 'Segoe UI', sans-serif; text-transform: uppercase;
         }
 
         .screen { display: none; height: 100vh; flex-direction: column; align-items: center; justify-content: center; }
         .active { display: flex; }
 
-        /* Estilo Botões */
-        button {
-            background: transparent;
-            border: 1px solid var(--gold);
-            color: var(--gold);
-            padding: 10px 25px;
-            cursor: pointer;
-            transition: 0.3s;
-            font-weight: bold;
-            letter-spacing: 2px;
+        /* GRID DE PERSONAGENS */
+        .char-container {
+            display: grid; grid-template-columns: repeat(6, 1fr);
+            gap: 10px; max-width: 900px; margin: 20px;
         }
 
-        button:hover { background: var(--gold); color: black; box-shadow: 0 0 15px var(--gold); }
-
-        /* LOBBY */
-        #lobby { background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('https://wallpaperaccess.com/full/8592534.jpg'); background-size: cover; }
-        .logo-box { border: 2px solid var(--blood-red); padding: 20px; margin-bottom: 20px; }
-
-        /* SELEÇÃO */
-        .char-grid { display: flex; gap: 20px; margin-top: 30px; }
         .char-card {
-            width: 150px; height: 250px;
-            border: 1px solid #444;
-            display: flex; flex-direction: column; align-items: center;
-            justify-content: flex-end; padding-bottom: 20px;
-            cursor: pointer; background: #222; position: relative;
+            background: var(--panel); border: 1px solid #333;
+            padding: 10px; text-align: center; cursor: pointer;
+            transition: 0.2s; position: relative; font-size: 0.7rem;
         }
-        .char-card:hover { border-color: var(--gold); transform: translateY(-5px); }
-        .char-card.selected { border: 3px solid var(--terminal-green); }
+
+        .char-card:hover { border-color: var(--gold); background: #252525; }
+        .char-card.selected { border: 2px solid var(--gold); box-shadow: 0 0 10px var(--gold); }
+        .char-card.selected::after { content: "✓"; position: absolute; top: 2px; right: 5px; color: var(--gold); font-size: 1rem; }
 
         /* BATALHA */
-        #battle-area { width: 80%; display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .combatant { text-align: center; }
-        .hp-bar { width: 200px; height: 10px; background: #333; border: 1px solid #555; margin-top: 5px; }
-        .hp-fill { height: 100%; background: var(--blood-red); transition: 0.5s; }
+        .battle-layout { display: flex; width: 90%; justify-content: space-around; align-items: flex-end; }
+        .squad-side, .enemy-side { display: flex; gap: 15px; }
+        .unit { text-align: center; width: 100px; }
+        .hp-bar { width: 100%; height: 6px; background: #333; margin-top: 5px; border: 1px solid #000; }
+        .hp-fill { height: 100%; background: #2ecc71; transition: 0.4s; }
+        .enemy-hp { background: var(--blood); }
+
         #log {
-            width: 60%; height: 150px; background: rgba(0,0,0,0.8);
-            border-top: 2px solid var(--gold); overflow-y: auto;
-            padding: 10px; font-family: monospace; font-size: 0.9rem; text-align: left;
+            width: 80%; height: 120px; background: rgba(0,0,0,0.9);
+            border: 1px solid var(--gold); margin-top: 20px;
+            padding: 10px; overflow-y: auto; font-family: monospace; font-size: 0.8rem;
         }
+
+        button {
+            background: black; border: 1px solid var(--gold); color: var(--gold);
+            padding: 10px 20px; cursor: pointer; font-weight: bold; margin-top: 10px;
+        }
+        button:disabled { border-color: #444; color: #444; }
     </style>
 </head>
 <body>
 
-    <div id="screen-lobby" class="screen active">
-        <div class="logo-box">
-            <h1>MANOBIT <span style="color: var(--blood-red);">COMPANY</span></h1>
-            <p>[ DATA-CENTER CONNECTED ]</p>
-        </div>
-        <button onclick="changeScreen('screen-select')">ENTER MEPHISTOPHELES</button>
+    <div id="lobby" class="screen active">
+        <h1 style="letter-spacing: 10px;">L I M B U S <span style="color: var(--blood);">B I T</span></h1>
+        <button onclick="goToSelect()">START DRIVE</button>
     </div>
 
-    <div id="screen-select" class="screen">
-        <h2>Selecione sua Identidade</h2>
-        <div class="char-grid">
-            <div class="char-card" onclick="selectChar('Dante', 120, 20)">
-                <span>DANTE</span>
-            </div>
-            <div class="char-card" onclick="selectChar('Faust', 100, 35)">
-                <span>FAUST</span>
-            </div>
-            <div class="char-card" onclick="selectChar('Ishmael', 150, 15)">
-                <span>ISHMAEL</span>
-            </div>
-        </div>
-        <p id="selection-info">Ninguém selecionado</p>
-        <button id="start-btn" style="display:none;" onclick="startBattle()">INICIAR EXTRAÇÃO</button>
+    <div id="select" class="screen">
+        <h2>Selecione 3 Pecadores (<span id="count">0</span>/3)</h2>
+        <div class="char-container" id="char-grid"></div>
+        <button id="btn-battle" disabled onclick="startBattle()">DEPLOY SQUAD</button>
     </div>
 
-    <div id="screen-battle" class="screen">
-        <div id="battle-area">
-            <div class="combatant">
-                <h3 id="p-name">PLAYER</h3>
-                <div class="hp-bar"><div id="p-hp-fill" class="hp-fill" style="width: 100%;"></div></div>
-                <p>HP: <span id="p-hp-val">100</span></p>
-            </div>
-            <div style="font-size: 2rem; color: var(--gold);">VS</div>
-            <div class="combatant">
-                <h3 style="color: var(--blood-red);">ABNORMALITY</h3>
-                <div class="hp-bar"><div id="e-hp-fill" class="hp-fill" style="width: 100%;"></div></div>
-                <p>HP: <span id="e-hp-val">150</span></p>
+    <div id="battle" class="screen">
+        <div class="battle-layout">
+            <div class="squad-side" id="player-squad"></div>
+            <div style="font-size: 1.5rem; padding-bottom: 20px;">VS</div>
+            <div class="enemy-side">
+                <div class="unit">
+                    <div style="font-size: 2rem;">👹</div>
+                    <div>ABNORMALITY</div>
+                    <div class="hp-bar"><div id="e-hp" class="hp-fill enemy-hp" style="width: 100%;"></div></div>
+                </div>
             </div>
         </div>
-
         <div id="log"></div>
-
-        <div style="margin-top: 20px;">
-            <button onclick="playerAttack()">ATTACK [CHAIN]</button>
-            <button onclick="location.reload()">ABORT RUN</button>
-        </div>
+        <button id="atk-btn" onclick="executeTurn()">CHAIN ATTACK</button>
     </div>
 
     <script>
-        // Lógica do ManoBit
-        let player = { name: "", hp: 0, maxHp: 0, atk: 0 };
-        let enemy = { name: "Doomed Wanderer", hp: 150, maxHp: 150, atk: 18 };
+        const sinnersData = [
+            { id: 1, name: "Yi Sang", hp: 100, atk: 15 }, { id: 2, name: "Faust", hp: 110, atk: 18 },
+            { id: 3, name: "Don Quixote", hp: 95, atk: 22 }, { id: 4, name: "Ryoshu", hp: 90, atk: 25 },
+            { id: 5, name: "Meursault", hp: 150, atk: 10 }, { id: 6, name: "Hong Lu", hp: 105, atk: 17 },
+            { id: 7, name: "Heathcliff", hp: 120, atk: 20 }, { id: 8, name: "Ishmael", hp: 115, atk: 19 },
+            { id: 9, name: "Rodion", hp: 125, atk: 18 }, { id: 10, name: "Dante", hp: 100, atk: 12 },
+            { id: 11, name: "Outis", hp: 110, atk: 21 }, { id: 12, name: "Gregor", hp: 130, atk: 16 }
+        ];
+
+        let selectedSinners = [];
+        let enemy = { name: "Anormalidade", hp: 500, maxHp: 500, atk: 25 };
+
+        // Inicializar Grid
+        function goToSelect() {
+            const grid = document.getElementById('char-grid');
+            grid.innerHTML = '';
+            sinnersData.forEach(s => {
+                const card = document.createElement('div');
+                card.className = 'char-card';
+                card.innerHTML = `<strong>${s.name}</strong><br>HP:${s.hp} ATK:${s.atk}`;
+                card.onclick = () => toggleSinner(s, card);
+                grid.appendChild(card);
+            });
+            changeScreen('select');
+        }
+
+        function toggleSinner(sinner, element) {
+            const index = selectedSinners.findIndex(s => s.id === sinner.id);
+            if (index > -1) {
+                selectedSinners.splice(index, 1);
+                element.classList.remove('selected');
+            } else if (selectedSinners.length < 3) {
+                selectedSinners.push({...sinner, currentHp: sinner.hp});
+                element.classList.add('selected');
+            }
+            document.getElementById('count').innerText = selectedSinners.length;
+            document.getElementById('btn-battle').disabled = selectedSinners.length !== 3;
+        }
+
+        function startBattle() {
+            const squadDiv = document.getElementById('player-squad');
+            squadDiv.innerHTML = '';
+            selectedSinners.forEach((s, i) => {
+                squadDiv.innerHTML += `
+                    <div class="unit" id="unit-${i}">
+                        <div style="font-size: 1.5rem;">👤</div>
+                        <div>${s.name}</div>
+                        <div class="hp-bar"><div id="hp-${i}" class="hp-fill" style="width: 100%;"></div></div>
+                    </div>`;
+            });
+            changeScreen('battle');
+            addLog("Iniciando protocolo de combate...");
+        }
+
+        function executeTurn() {
+            document.getElementById('atk-btn').disabled = true;
+            
+            // Ataque dos Pecadores
+            selectedSinners.forEach((s, i) => {
+                if(s.currentHp > 0 && enemy.hp > 0) {
+                    setTimeout(() => {
+                        let dmg = Math.floor(Math.random() * s.atk) + 5;
+                        enemy.hp -= dmg;
+                        addLog(`${s.name} atacou e causou ${dmg} de dano!`);
+                        updateUI();
+                    }, i * 500);
+                }
+            });
+
+            // Ataque do Inimigo
+            setTimeout(() => {
+                if(enemy.hp > 0) {
+                    let targetIdx = Math.floor(Math.random() * selectedSinners.length);
+                    let target = selectedSinners[targetIdx];
+                    if(target.currentHp > 0) {
+                        let eDmg = enemy.atk + Math.floor(Math.random() * 10);
+                        target.currentHp -= eDmg;
+                        if(target.currentHp < 0) target.currentHp = 0;
+                        addLog(`<span style="color:var(--blood)">Inimigo esmagou ${target.name} com ${eDmg} de dano!</span>`);
+                        updateUI();
+                    }
+                } else {
+                    addLog("--- VITÓRIA! A ANORMALIDADE FOI CONTIDA ---");
+                }
+                document.getElementById('atk-btn').disabled = false;
+            }, 2000);
+        }
+
+        function updateUI() {
+            document.getElementById('e-hp').style.width = (enemy.hp / enemy.maxHp * 100) + "%";
+            selectedSinners.forEach((s, i) => {
+                document.getElementById(`hp-${i}`).style.width = (s.currentHp / s.hp * 100) + "%";
+                if(s.currentHp <= 0) document.getElementById(`unit-${i}`).style.opacity = "0.4";
+            });
+        }
+
+        function addLog(m) {
+            const l = document.getElementById('log');
+            l.innerHTML += `> ${m}<br>`;
+            l.scrollTop = l.scrollHeight;
+        }
 
         function changeScreen(id) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.getElementById(id).classList.add('active');
-        }
-
-        function selectChar(name, hp, atk) {
-            player = { name, hp, maxHp: hp, atk };
-            document.getElementById('selection-info').innerText = `Identidade: ${name} (HP: ${hp} | ATK: ${atk})`;
-            document.getElementById('start-btn').style.display = 'block';
-            
-            // Highlight visual
-            document.querySelectorAll('.char-card').forEach(c => c.classList.remove('selected'));
-            event.currentTarget.classList.add('selected');
-        }
-
-        function startBattle() {
-            document.getElementById('p-name').innerText = player.name;
-            updateUI();
-            changeScreen('screen-battle');
-            addLog("Uma nova anormalidade surgiu no corredor...");
-        }
-
-        function addLog(msg) {
-            const log = document.getElementById('log');
-            log.innerHTML += `> ${msg}<br>`;
-            log.scrollTop = log.scrollHeight;
-        }
-
-        function updateUI() {
-            document.getElementById('p-hp-val').innerText = player.hp;
-            document.getElementById('p-hp-fill').style.width = (player.hp / player.maxHp * 100) + "%";
-            document.getElementById('e-hp-val').innerText = enemy.hp;
-            document.getElementById('e-hp-fill').style.width = (enemy.hp / enemy.maxHp * 100) + "%";
-        }
-
-        function playerAttack() {
-            if(player.hp <= 0 || enemy.hp <= 0) return;
-
-            // Turno do Player
-            let damage = Math.floor(Math.random() * player.atk) + 5;
-            enemy.hp -= damage;
-            addLog(`<span style="color:var(--gold)">${player.name}</span> causou ${damage} de dano!`);
-            
-            if(enemy.hp <= 0) {
-                enemy.hp = 0;
-                updateUI();
-                addLog("ANORMALIDADE SUPRIMIDA. SUCESSO.");
-                return;
-            }
-
-            // Turno do Inimigo (atraso pra parecer pensado)
-            setTimeout(() => {
-                let eDamage = Math.floor(Math.random() * enemy.atk) + 2;
-                player.hp -= eDamage;
-                addLog(`<span style="color:var(--blood-red)">Inimigo</span> contra-atacou: ${eDamage} de dano!`);
-                
-                if(player.hp <= 0) {
-                    player.hp = 0;
-                    addLog("GERENTE MORTO. SINNERS DESCONECTADOS.");
-                }
-                updateUI();
-            }, 600);
         }
     </script>
 </body>
