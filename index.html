@@ -2,67 +2,56 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>ManoBit Company: The Predict Update</title>
+    <title>ManoBit Company: Coin & Defense</title>
     <style>
         :root { --blood: #bb0000; --gold: #d4af37; --bg: #050505; --panel: #111; --win: #33ff33; --lose: #ff3333; --neutral: #33aaff; }
-        body { margin: 0; background: var(--bg); color: #ccc; font-family: 'Consolas', 'Courier New', monospace; text-transform: uppercase; }
+        body { margin: 0; background: var(--bg); color: #ccc; font-family: 'Consolas', monospace; text-transform: uppercase; overflow: hidden; }
         
         .screen { display: none; height: 100vh; flex-direction: column; align-items: center; justify-content: center; }
         .active { display: flex; }
 
         /* SELEÇÃO */
         .char-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 20px; }
-        .char-card { 
-            background: var(--panel); border: 1px solid #333; padding: 12px; 
-            cursor: pointer; text-align: center; font-size: 0.8rem;
-        }
-        .char-card.selected { border: 1px solid var(--gold); color: var(--gold); box-shadow: inset 0 0 10px #d4af3744; }
+        .char-card { background: var(--panel); border: 1px solid #333; padding: 10px; cursor: pointer; text-align: center; font-size: 0.7rem; }
+        .char-card.selected { border: 1px solid var(--gold); color: var(--gold); }
 
         /* BATALHA */
-        .unit-box { width: 110px; border: 1px solid #444; padding: 8px; background: #000; text-align: center; }
+        .unit-box { width: 105px; border: 1px solid #444; padding: 5px; background: #000; text-align: center; position: relative; }
         .unit-box.acting { border-color: var(--gold); box-shadow: 0 0 15px var(--gold); }
         .hp-bar { width: 100%; height: 5px; background: #222; margin-top: 5px; }
         .hp-fill { height: 100%; background: var(--win); transition: 0.4s; }
+        .defending { border-style: dashed; border-color: var(--neutral); }
 
-        /* PREDICT UI */
-        .command-panel { 
-            background: #000; border: 2px solid var(--gold); padding: 15px; 
-            width: 85%; display: flex; flex-direction: column; align-items: center;
-        }
-        .skills-row { display: flex; gap: 10px; margin-top: 10px; }
-        .skill-btn { 
-            background: #111; color: #fff; border: 1px solid #555;
-            padding: 10px; cursor: pointer; text-align: left; min-width: 140px;
-        }
+        /* SKILLS & COINS */
+        .command-panel { background: #000; border: 2px solid var(--gold); padding: 15px; width: 90%; }
+        .skills-row { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+        .skill-btn { background: #111; color: #fff; border: 1px solid #555; padding: 8px; cursor: pointer; min-width: 130px; font-size: 0.7rem; }
         .skill-btn:hover { border-color: var(--gold); }
-        .predict-tag { font-size: 0.7rem; font-weight: bold; margin-bottom: 5px; }
+        .coin-icon { color: var(--gold); font-weight: bold; }
 
-        #log { 
-            width: 85%; height: 110px; background: #000; border: 1px solid #222; 
-            margin-top: 10px; overflow-y: auto; padding: 10px; font-size: 0.8rem;
-        }
-        .dante-msg { color: var(--gold); font-style: italic; }
+        #log { width: 90%; height: 120px; background: #000; border: 1px solid #222; margin-top: 10px; overflow-y: auto; padding: 10px; font-size: 0.75rem; }
+        .heads { color: var(--win); } .tails { color: var(--lose); }
     </style>
 </head>
 <body>
 
     <div id="scr-select" class="screen active">
-        <h2 style="color: var(--gold);">EXECUTORS SELECTION</h2>
+        <h2 style="color: var(--gold);">LCB SQUAD DEPLOYMENT</h2>
         <div id="grid" class="char-grid"></div>
-        <button onclick="startBattle()" id="btn-deploy" style="background:var(--blood); color:white; padding:10px 40px; border:none; cursor:pointer;" disabled>DEPLOY</button>
+        <button onclick="startBattle()" id="btn-deploy" style="background:var(--blood); color:white; padding:10px 40px; border:none; cursor:pointer;" disabled>CONFIRM</button>
     </div>
 
     <div id="scr-battle" class="screen">
-        <div class="unit-box" style="width: 280px; border-color: var(--blood); margin-bottom: 20px;">
+        <div class="unit-box" style="width: 280px; border-color: var(--blood); margin-bottom: 15px;">
             <div style="color: var(--blood); font-weight: bold;">[ ABNORMALITY ]</div>
             <div class="hp-bar"><div id="e-hp" class="hp-fill" style="background: var(--blood); width: 100%;"></div></div>
-            <small id="e-hp-text">1000/1000</small>
+            <small id="e-hp-text">1200/1200</small>
         </div>
 
-        <div id="player-row" style="display:flex; gap:10px; margin-bottom: 20px;"></div>
+        <div id="player-row" style="display:flex; gap:8px; margin-bottom: 15px;"></div>
 
         <div id="command-ui" class="command-panel" style="visibility: hidden;">
-            <div id="predict-display" style="font-size: 1.2rem; margin-bottom: 10px;">-</div>
+            <div style="text-align: center; margin-bottom: 10px;">COMMANDING: <span id="current-sinner-name" style="color:var(--gold)">-</span></div>
             <div id="skills-list" class="skills-row"></div>
         </div>
 
@@ -71,26 +60,26 @@
 
     <script>
         const sinnersBase = [
-            { name: "Yi Sang", hp: 100, skills: [{n: "Crow's Eye", d: 18}, {n: "Ennui", d: 24}] },
-            { name: "Faust", hp: 115, skills: [{n: "Execution", d: 21}, {n: "Analysis", d: 29}] },
-            { name: "Don Quixote", hp: 95, skills: [{n: "Justice!", d: 35}, {n: "Galloping", d: 19}] },
-            { name: "Ryoshu", hp: 90, skills: [{n: "P.O.D.", d: 38}, {n: "4th Match", d: 26}] },
-            { name: "Meursault", hp: 160, skills: [{n: "Chains", d: 14}, {n: "Pursuance", d: 20}] },
-            { name: "Hong Lu", hp: 105, skills: [{n: "Cloud Cutter", d: 25}, {n: "Whirligig", d: 20}] },
-            { name: "Heathcliff", hp: 120, skills: [{n: "Bodysack", d: 27}, {n: "Upbeat", d: 23}] },
-            { name: "Ishmael", hp: 110, skills: [{n: "Snagharpoon", d: 24}, {n: "Ardor", d: 31}] },
-            { name: "Rodion", hp: 130, skills: [{n: "Hammer", d: 26}, {n: "Rime Shank", d: 16}] },
-            { name: "Sinclair", hp: 95, skills: [{n: "Branch", d: 33}, {n: "Spurt", d: 18}] },
-            { name: "Outis", hp: 110, skills: [{n: "To Path", d: 28}, {n: "Ebony", d: 24}] },
-            { name: "Gregor", hp: 125, skills: [{n: "Magical", d: 20}, {n: "Leger", d: 24}] }
+            { name: "Yi Sang", hp: 100, skills: [{n: "S1: Ennui", b: 4, c: 2, p: 4}, {n: "S2: Crow", b: 6, c: 3, p: 6}, {n: "S3: Yi Sang's Blade", b: 8, c: 4, p: 8}] },
+            { name: "Faust", hp: 115, skills: [{n: "S1: Attack", b: 5, c: 1, p: 10}, {n: "S2: Execution", b: 7, c: 2, p: 8}, {n: "S3: Analysis Beam", b: 10, c: 3, p: 12}] },
+            { name: "Don Quixote", hp: 95, skills: [{n: "S1: Poke", b: 3, c: 3, p: 5}, {n: "S2: Justice!", b: 6, c: 2, p: 14}, {n: "S3: Galloping", b: 10, c: 1, p: 25}] },
+            { name: "Ryoshu", hp: 90, skills: [{n: "S1: Slash", b: 5, c: 2, p: 6}, {n: "S2: P.O.D", b: 8, c: 3, p: 8}, {n: "S3: Match Flame", b: 12, c: 2, p: 15}] },
+            { name: "Meursault", hp: 160, skills: [{n: "S1: Punch", b: 6, c: 1, p: 6}, {n: "S2: Chains", b: 5, c: 4, p: 3}, {n: "S3: Pursuance", b: 10, c: 2, p: 10}] },
+            { name: "Hong Lu", hp: 105, skills: [{n: "S1: Swing", b: 4, c: 3, p: 4}, {n: "S2: Cloud", b: 7, c: 2, p: 9}, {n: "S3: Whirligig", b: 9, c: 3, p: 11}] },
+            { name: "Heathcliff", hp: 120, skills: [{n: "S1: Bat", b: 5, c: 2, p: 5}, {n: "S2: Bodysack", b: 9, c: 1, p: 15}, {n: "S3: Revenge", b: 11, c: 3, p: 10}] },
+            { name: "Ishmael", hp: 110, skills: [{n: "S1: Harpoon", b: 4, c: 2, p: 7}, {n: "S2: Snag", b: 7, c: 3, p: 8}, {n: "S3: Ardor", b: 12, c: 1, p: 30}] },
+            { name: "Rodion", hp: 130, skills: [{n: "S1: Axe", b: 5, c: 2, p: 6}, {n: "S2: Hammer", b: 8, c: 2, p: 10}, {n: "S3: Rime", b: 11, c: 4, p: 6}] },
+            { name: "Sinclair", hp: 95, skills: [{n: "S1: Branch", b: 3, c: 4, p: 4}, {n: "S2: Spurt", b: 7, c: 3, p: 7}, {n: "S3: Destined", b: 12, c: 2, p: 20}] },
+            { name: "Outis", hp: 110, skills: [{n: "S1: Path", b: 5, c: 2, p: 6}, {n: "S2: Ebony", b: 8, c: 2, p: 11}, {n: "S3: Command", b: 11, c: 3, p: 9}] },
+            { name: "Gregor", hp: 125, skills: [{n: "S1: Bullet", b: 5, c: 1, p: 12}, {n: "S2: Mag", b: 7, c: 3, p: 7}, {n: "S3: Leger", b: 10, c: 2, p: 13}] }
         ];
 
         let squad = [];
-        let enemy = { hp: 1000, maxHp: 1000, atk: 28 };
+        let enemy = { hp: 1200, maxHp: 1200, atk: 32 };
         let currentSinnerIdx = 0;
         let actions = [];
 
-        // Grid Init
+        // Grid
         const grid = document.getElementById('grid');
         sinnersBase.forEach(s => {
             const card = document.createElement('div');
@@ -98,7 +87,7 @@
             card.onclick = () => {
                 const idx = squad.findIndex(it => it.name === s.name);
                 if(idx > -1) { squad.splice(idx, 1); card.classList.remove('selected'); }
-                else if(squad.length < 6) { squad.push({...s, curHp: s.hp}); card.classList.add('selected'); }
+                else if(squad.length < 6) { squad.push({...s, curHp: s.hp, isDefending: false}); card.classList.add('selected'); }
                 document.getElementById('btn-deploy').disabled = squad.length === 0;
             };
             grid.appendChild(card);
@@ -107,22 +96,21 @@
         function startBattle() {
             document.getElementById('scr-select').classList.remove('active');
             document.getElementById('scr-battle').classList.add('active');
-            renderSquad();
-            startTurn();
+            renderSquad(); startTurn();
         }
 
         function renderSquad() {
-            const row = document.getElementById('player-row');
-            row.innerHTML = '';
+            const row = document.getElementById('player-row'); row.innerHTML = '';
             squad.forEach((s, i) => {
-                row.innerHTML += `<div class="unit-box" id="unit-${i}"><div>${s.name}</div><div class="hp-bar"><div id="hp-${i}" class="hp-fill"></div></div></div>`;
+                row.innerHTML += `<div class="unit-box" id="unit-${i}"><div>${s.name}</div><div class="hp-bar"><div id="hp-${i}" class="hp-fill"></div></div><div id="def-tag-${i}" style="font-size:0.5rem; color:var(--neutral)"></div></div>`;
             });
             updateUI();
         }
 
         function startTurn() {
             actions = []; currentSinnerIdx = 0;
-            addLog(`<span class="dante-msg">Dante: < Tick, Tock... Planning phase started. ></span>`);
+            squad.forEach(s => { s.isDefending = false; });
+            addLog(`<span style="color:var(--gold)">< Tick, Tock... Choose your skills. ></span>`);
             nextInput();
         }
 
@@ -130,56 +118,73 @@
             if(currentSinnerIdx >= squad.length) return execute();
             if(squad[currentSinnerIdx].curHp <= 0) { currentSinnerIdx++; return nextInput(); }
             
-            const sinner = squad[currentSinnerIdx];
             document.querySelectorAll('.unit-box').forEach(b => b.classList.remove('acting'));
             document.getElementById(`unit-${currentSinnerIdx}`).classList.add('acting');
-            
             document.getElementById('command-ui').style.visibility = 'visible';
-            const list = document.getElementById('skills-list');
-            list.innerHTML = '';
+            document.getElementById('current-sinner-name').innerText = squad[currentSinnerIdx].name;
 
+            const list = document.getElementById('skills-list'); list.innerHTML = '';
+            const sinner = squad[currentSinnerIdx];
+
+            // Atacar
             sinner.skills.forEach(sk => {
-                // O PREDICT ACONTECE AQUI
-                let predict = ""; let color = "";
-                let diff = sk.d - enemy.atk;
-                if(diff > 5) { predict = "WINNABLE"; color = "var(--win)"; }
-                else if(diff >= -5) { predict = "STRUGGLE"; color = "var(--neutral)"; }
-                else { predict = "HOPELESS"; color = "var(--lose)"; }
-
-                const btn = document.createElement('button');
-                btn.className = 'skill-btn';
-                btn.innerHTML = `<div class="predict-tag" style="color:${color}">${predict}</div><div>${sk.n}</div>`;
-                btn.onclick = () => { 
-                    actions.push({ sIdx: currentSinnerIdx, skill: sk, pred: predict });
-                    currentSinnerIdx++; nextInput(); 
-                };
+                const btn = document.createElement('button'); btn.className = 'skill-btn';
+                let max = sk.b + (sk.c * sk.p);
+                let pred = (max > enemy.atk + 10) ? "WINNABLE" : (max > enemy.atk - 5) ? "STRUGGLE" : "HOPELESS";
+                btn.innerHTML = `<span style="font-size:0.6rem; display:block">${pred}</span>${sk.n}<br><span class="coin-icon">${sk.c} Moedas</span> (+${sk.p})`;
+                btn.onclick = () => { actions.push({ type: 'atk', sIdx: currentSinnerIdx, skill: sk }); currentSinnerIdx++; nextInput(); };
                 list.appendChild(btn);
             });
+
+            // Defender
+            const defBtn = document.createElement('button'); defBtn.className = 'skill-btn';
+            defBtn.style.borderColor = "var(--neutral)";
+            defBtn.innerHTML = `<span style="color:var(--neutral)">DEFENSE</span><br>Reduz Dano em 50%`;
+            defBtn.onclick = () => { 
+                squad[currentSinnerIdx].isDefending = true;
+                document.getElementById(`unit-${currentSinnerIdx}`).classList.add('defending');
+                document.getElementById(`def-tag-${currentSinnerIdx}`).innerText = "DEFENDING";
+                currentSinnerIdx++; nextInput(); 
+            };
+            list.appendChild(defBtn);
         }
 
         async function execute() {
             document.getElementById('command-ui').style.visibility = 'hidden';
             for(let a of actions) {
                 if(enemy.hp <= 0) break;
-                await new Promise(r => setTimeout(r, 600));
-                let dmg = a.skill.d + Math.floor(Math.random()*10);
-                enemy.hp -= dmg;
-                addLog(`[${a.pred}] ${squad[a.sIdx].name} -> ${a.skill.n}: ${dmg} DMG`);
+                await new Promise(r => setTimeout(r, 700));
+                
+                let finalDmg = a.skill.b;
+                let coinsResult = [];
+                for(let i=0; i<a.skill.c; i++) {
+                    if(Math.random() > 0.5) { finalDmg += a.skill.p; coinsResult.push("<span class='heads'>H</span>"); }
+                    else { coinsResult.push("<span class='tails'>T</span>"); }
+                }
+                
+                enemy.hp -= finalDmg;
+                addLog(`${squad[a.sIdx].name} [${coinsResult.join("")}] -> ${finalDmg} DMG!`);
                 updateUI();
             }
 
             if(enemy.hp > 0) {
                 await new Promise(r => setTimeout(r, 800));
-                let target = squad.filter(s => s.curHp > 0)[Math.floor(Math.random()*squad.filter(s=>s.curHp>0).length)];
-                if(target) {
-                    target.curHp -= enemy.atk;
-                    addLog(`<span style="color:var(--blood)">Abnormality strikes ${target.name}!</span>`);
+                let targets = squad.filter(s => s.curHp > 0);
+                if(targets.length > 0) {
+                    let target = targets[Math.floor(Math.random()*targets.length)];
+                    let dmg = enemy.atk;
+                    if(target.isDefending) { dmg = Math.floor(dmg / 2); addLog(`🛡️ ${target.name} defendeu!`); }
+                    target.curHp -= dmg;
+                    addLog(`<span style="color:var(--blood)">Abnormality -> ${target.name} for ${dmg} DMG!</span>`);
                     updateUI();
                 }
-            } else { addLog("MISSION CLEAR."); return; }
+            } else { addLog("Victory!"); return; }
 
-            if(squad.every(s => s.curHp <= 0)) addLog("ALL SINNERS DEFEATED.");
-            else setTimeout(startTurn, 1000);
+            setTimeout(() => {
+                document.querySelectorAll('.unit-box').forEach(b => b.classList.remove('defending'));
+                document.querySelectorAll("[id^='def-tag-']").forEach(t => t.innerText = "");
+                startTurn();
+            }, 1000);
         }
 
         function updateUI() {
@@ -192,9 +197,7 @@
         }
 
         function addLog(m) {
-            const l = document.getElementById('log');
-            l.innerHTML += `> ${m}<br>`;
-            l.scrollTop = l.scrollHeight;
+            const l = document.getElementById('log'); l.innerHTML += `> ${m}<br>`; l.scrollTop = l.scrollHeight;
         }
     </script>
 </body>
