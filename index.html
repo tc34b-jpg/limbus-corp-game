@@ -2,63 +2,66 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>ManoBit Company: Overpowered 12</title>
+    <title>ManoBit Company: Tactical Balance</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Press+Start+2P&display=swap');
         
         :root {
-            --bg: #0a0a1a; --panel: #161625; --accent: #ffb347;
+            --bg: #05050a; --panel: #11111d; --accent: #ffb347;
             --win: #4CAF50; --lose: #f44336; --ego: #a333ff; --sp: #33aaff;
-            --border: #3a3a5a;
+            --border: #2a2a3a;
         }
 
-        body { margin: 0; background: linear-gradient(135deg, #050510, #1a1a2e); color: #e0e0f8; font-family: 'Roboto', sans-serif; overflow: hidden; text-transform: uppercase; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
-        .screen { display: none; width: 95%; max-width: 1100px; height: 90vh; background: var(--panel); border-radius: 20px; box-shadow: 0 0 40px rgba(0,0,0,0.8); border: 2px solid var(--border); flex-direction: column; align-items: center; padding: 20px; box-sizing: border-box; }
+        body { margin: 0; background: linear-gradient(135deg, #050510, #141425); color: #e0e0f8; font-family: 'Roboto', sans-serif; overflow: hidden; text-transform: uppercase; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        .screen { display: none; width: 95%; max-width: 1100px; height: 90vh; background: var(--panel); border-radius: 20px; box-shadow: 0 0 40px rgba(0,0,0,0.9); border: 2px solid var(--border); flex-direction: column; align-items: center; padding: 20px; box-sizing: border-box; position: relative; }
         .active { display: flex; }
 
-        h1 { font-family: 'Press Start 2P', cursive; color: var(--accent); font-size: 1.2rem; margin-bottom: 20px; text-shadow: 0 0 10px rgba(255,179,71,0.5); }
+        h1 { font-family: 'Press Start 2P', cursive; color: var(--accent); font-size: 1.1rem; margin-bottom: 20px; text-shadow: 0 0 10px rgba(255,179,71,0.5); }
 
         /* SELEÇÃO */
-        .char-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; width: 100%; overflow-y: auto; padding: 10px; margin-bottom: 20px; }
-        .char-card { background: #0f0f1d; border: 2px solid var(--border); border-radius: 12px; padding: 15px; cursor: pointer; text-align: center; transition: 0.3s; }
-        .char-card:hover { border-color: var(--accent); transform: translateY(-3px); }
-        .char-card.selected { border-color: var(--win); background: #1a2a1a; box-shadow: 0 0 15px rgba(76,175,80,0.3); }
+        .char-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; width: 100%; overflow-y: auto; padding: 10px; flex: 1; }
+        .char-card { background: #0a0a15; border: 2px solid var(--border); border-radius: 12px; padding: 12px; cursor: pointer; text-align: center; transition: 0.3s; }
+        .char-card:hover { border-color: var(--accent); transform: scale(1.02); }
+        .char-card.selected { border-color: var(--win); background: #152515; }
 
-        /* BATALHA */
-        .battle-area { display: flex; width: 100%; justify-content: space-between; flex: 1; }
-        .squad-side { width: 65%; display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; align-content: center; }
-        .enemy-side { width: 30%; display: flex; flex-direction: column; align-items: center; justify-content: center; border-left: 1px solid var(--border); }
+        /* BATALHA AREA */
+        .battle-area { display: flex; width: 100%; justify-content: space-between; flex: 1; margin-bottom: 15px; }
+        .squad-side { width: 65%; display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; align-content: center; }
+        .enemy-side { width: 30%; display: flex; flex-direction: column; align-items: center; justify-content: center; border-left: 2px solid var(--border); background: rgba(255,0,0,0.02); border-radius: 0 20px 20px 0; }
         
-        .unit-card { background: #0f0f1d; border: 1px solid var(--border); border-radius: 10px; padding: 10px; text-align: center; position: relative; transition: 0.3s; }
-        .unit-card.acting { border-color: var(--accent); box-shadow: 0 0 20px var(--accent); transform: scale(1.05); z-index: 10; }
+        .unit-card { background: #08080f; border: 1px solid var(--border); border-radius: 10px; padding: 8px; text-align: center; position: relative; transition: 0.3s; }
+        .unit-card.acting { border-color: var(--accent); box-shadow: 0 0 20px rgba(255,179,71,0.4); transform: scale(1.08); z-index: 10; }
         
-        .bar { width: 100%; height: 10px; background: #000; border-radius: 5px; overflow: hidden; margin: 4px 0; }
+        /* BARRAS */
+        .bar { width: 100%; height: 8px; background: #000; border-radius: 4px; overflow: hidden; margin: 3px 0; }
         .bar-fill { height: 100%; transition: 0.5s; }
 
         /* COINS VISUAIS */
-        #coin-box { position: fixed; top: 35%; left: 50%; transform: translate(-50%, -50%); display: flex; gap: 15px; z-index: 1000; }
-        .v-coin { width: 70px; height: 70px; border-radius: 50%; border: 4px solid var(--accent); background: #222; display: flex; align-items: center; justify-content: center; font-size: 2rem; font-weight: bold; text-shadow: 0 0 5px #000; }
+        #coin-box { position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%); display: flex; gap: 15px; z-index: 2000; pointer-events: none; }
+        .v-coin { width: 65px; height: 65px; border-radius: 50%; border: 4px solid var(--accent); background: #222; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; font-weight: bold; }
         .v-coin.spin { animation: flip 0.15s infinite linear; }
-        .v-coin.h { background: var(--win); border-color: #fff; }
-        .v-coin.t { background: var(--lose); border-color: #444; }
+        .v-coin.h { background: var(--win); border-color: #fff; box-shadow: 0 0 15px var(--win); }
+        .v-coin.t { background: var(--lose); border-color: #444; opacity: 0.6; }
         @keyframes flip { from { transform: rotateY(0deg); } to { transform: rotateY(360deg); } }
 
         /* COMANDOS */
-        .cmd-panel { width: 100%; background: #05050a; border-top: 2px solid var(--accent); border-radius: 15px 15px 0 0; padding: 20px; box-sizing: border-box; display: flex; flex-direction: column; gap: 15px; }
-        .skill-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
-        .btn-skill { background: #161625; color: #fff; border: 1px solid var(--border); padding: 12px; border-radius: 8px; cursor: pointer; font-size: 0.7rem; transition: 0.2s; }
-        .btn-skill:hover { border-color: var(--accent); background: #1f1f35; }
+        .cmd-panel { width: 100%; background: #030308; border-top: 2px solid var(--accent); padding: 15px; box-sizing: border-box; display: flex; flex-direction: column; gap: 10px; border-radius: 15px 15px 0 0; }
+        .skill-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+        .btn-skill { background: #111120; color: #fff; border: 1px solid var(--border); padding: 10px; border-radius: 6px; cursor: pointer; font-size: 0.65rem; transition: 0.2s; font-family: 'Press Start 2P', cursive; font-size: 0.45rem; line-height: 1.5; }
+        .btn-skill:hover { border-color: var(--accent); background: #1a1a2e; }
         .btn-ego { border-color: var(--ego); color: var(--ego); }
 
-        #log { width: 100%; height: 80px; background: #000; border-radius: 8px; padding: 10px; overflow-y: auto; font-size: 0.8rem; color: #888; border: 1px solid var(--border); }
+        #log { width: 100%; height: 70px; background: #000; border-radius: 6px; padding: 10px; overflow-y: auto; font-size: 0.75rem; color: #888; border: 1px solid var(--border); font-family: 'Consolas', monospace; }
+        .main-btn { background: var(--win); color: white; border: none; padding: 15px 50px; border-radius: 30px; cursor: pointer; font-family: 'Press Start 2P', cursive; font-size: 0.7rem; }
+        .main-btn:disabled { background: #333; cursor: not-allowed; }
     </style>
 </head>
 <body>
 
     <div id="scr-sel" class="screen active">
-        <h1>SQUAD SELECTION [OP MODE]</h1>
+        <h1>SQUAD SELECTION [TACTICAL MODE]</h1>
         <div id="grid" class="char-grid"></div>
-        <button onclick="deploy()" id="btn-go" style="background:var(--win); color:white; border:none; padding:15px 60px; border-radius:30px; cursor:pointer; font-weight:bold;" disabled>DEPLOY SQUAD</button>
+        <button onclick="deploy()" id="btn-go" class="main-btn" disabled>CONFIRM DEPLOY</button>
     </div>
 
     <div id="scr-bat" class="screen">
@@ -66,48 +69,49 @@
         <div class="battle-area">
             <div id="squad-ui" class="squad-side"></div>
             <div class="enemy-side">
-                <div style="font-size: 5rem;">👺</div>
-                <div style="font-weight:bold; color:var(--lose); margin-bottom:10px;">ULTIMATE ABOMINATION</div>
-                <div class="bar" style="width:80%; height:20px;"><div id="e-hp" class="bar-fill" style="background:var(--lose); width:100%;"></div></div>
-                <div id="e-hp-txt">3000/3000</div>
+                <div style="font-size: 5rem;">👹</div>
+                <div style="font-weight:bold; color:var(--lose); margin-bottom:10px;">ANORMALIDADE [RANK: WAW]</div>
+                <div class="bar" style="width:80%; height:18px;"><div id="e-hp" class="bar-fill" style="background:var(--lose); width:100%;"></div></div>
+                <div id="e-hp-txt" style="font-size: 0.7rem;">5000/5000</div>
             </div>
         </div>
 
         <div id="ui-cmd" class="cmd-panel" style="visibility:hidden">
-            <div style="font-size:1.1rem">ORDEM PARA: <span id="cur-name" style="color:var(--accent)">-</span></div>
+            <div style="font-size:0.8rem; font-family: 'Press Start 2P';">COMMANDING: <span id="cur-name" style="color:var(--accent)">-</span></div>
             <div id="skills" class="skill-row"></div>
             <div id="log"></div>
         </div>
     </div>
 
     <script>
+        // STATUS BALANCEADOS (JUSTO MAS CRUEL)
         const base = [
-            { n: "Yi Sang", a: "👤", h: 180, s: [{n:"S1",b:12,c:2,p:6},{n:"S2",b:15,c:3,p:8},{n:"S3",b:20,c:4,p:10}], e:{n:"Wings",b:40,c:1,p:60,k:20} },
-            { n: "Faust", a: "👩‍🔬", h: 200, s: [{n:"S1",b:14,c:1,p:15},{n:"S2",b:18,c:2,p:12},{n:"S3",b:22,c:3,p:15}], e:{n:"Fluid",b:35,c:1,p:70,k:25} },
-            { n: "Don Q.", a: "🐎", h: 170, s: [{n:"S1",b:10,c:3,p:8},{n:"S2",b:16,c:2,p:20},{n:"S3",b:25,c:1,p:50}], e:{n:"Justice",b:50,c:1,p:40,k:20} },
-            { n: "Ryoshu", a: "🗡️", h: 160, s: [{n:"S1",b:15,c:2,p:10},{n:"S2",b:20,c:3,p:12},{n:"S3",b:30,c:2,p:25}], e:{n:"Flame",b:45,c:1,p:80,k:30} },
-            { n: "Meursault", a: "👮", h: 280, s: [{n:"S1",b:18,c:1,p:10},{n:"S2",b:12,c:4,p:8},{n:"S3",b:25,c:2,p:15}], e:{n:"Chain",b:30,c:1,p:90,k:20} },
-            { n: "Hong Lu", a: "👑", h: 190, s: [{n:"S1",b:14,c:2,p:10},{n:"S2",b:18,c:2,p:18},{n:"S3",b:22,c:3,p:15}], e:{n:"Cloud",b:40,c:1,p:65,k:20} },
-            { n: "Heathcliff", a: "😠", h: 210, s: [{n:"S1",b:12,c:2,p:12},{n:"S2",b:20,c:1,p:35},{n:"S3",b:24,c:3,p:15}], e:{n:"Bodysack",b:40,c:1,p:75,k:20} },
-            { n: "Ishmael", a: "⚓", h: 200, s: [{n:"S1",b:14,c:2,p:10},{n:"S2",b:18,c:3,p:12},{n:"S3",b:28,c:1,p:60}], e:{n:"Snag",b:48,c:1,p:50,k:25} },
-            { n: "Rodion", a: "🔨", h: 230, s: [{n:"S1",b:10,c:2,p:12},{n:"S2",b:16,c:2,p:20},{n:"S3",b:22,c:4,p:12}], e:{n:"Rime",b:38,c:1,p:75,k:20} },
-            { n: "Sinclair", a: "🔪", h: 170, s: [{n:"S1",b:8,c:4,p:8},{n:"S2",b:14,c:3,p:14},{n:"S3",b:24,c:2,p:40}], e:{n:"Branch",b:44,c:1,p:56,k:20} },
-            { n: "Outis", a: "🎖️", h: 195, s: [{n:"S1",b:14,c:2,p:12},{n:"S2",b:18,c:2,p:22},{n:"S3",b:26,c:3,p:18}], e:{n:"Stem",b:42,c:1,p:64,k:25} },
-            { n: "Gregor", a: "🐛", h: 220, s: [{n:"S1",b:12,c:2,p:14},{n:"S2",b:16,c:3,p:10},{n:"S3",b:24,c:2,p:20}], e:{n:"Leger",b:38,c:1,p:70,k:20} }
+            { n: "Yi Sang", a: "👤", h: 140, s: [{n:"Ennui",b:5,c:2,p:4},{n:"Crow",b:7,c:3,p:5},{n:"Wings",b:10,c:4,p:6}], e:{n:"Wings",b:25,c:1,p:40,k:25} },
+            { n: "Faust", a: "👩‍🔬", h: 155, s: [{n:"S1",b:6,c:1,p:10},{n:"S2",b:8,c:2,p:8},{n:"S3",b:11,c:3,p:9}], e:{n:"Fluid",b:22,c:1,p:45,k:30} },
+            { n: "Don Q.", a: "🐎", h: 130, s: [{n:"S1",b:4,c:3,p:5},{n:"S2",b:8,c:2,p:14},{n:"S3",b:12,c:1,p:35}], e:{n:"Justice",b:30,c:1,p:40,k:25} },
+            { n: "Ryoshu", a: "🗡️", h: 125, s: [{n:"S1",b:6,c:2,p:6},{n:"S2",b:9,c:3,p:8},{n:"S3",b:15,c:2,p:18}], e:{n:"Flame",b:26,c:1,p:50,k:35} },
+            { n: "Meursault", a: "👮", h: 220, s: [{n:"S1",b:8,c:1,p:8},{n:"S2",b:6,c:4,p:4},{n:"S3",b:12,c:2,p:10}], e:{n:"Chain",b:20,c:1,p:50,k:20} },
+            { n: "Hong Lu", a: "👑", h: 145, s: [{n:"S1",b:6,c:2,p:6},{n:"S2",b:8,c:2,p:12},{n:"S3",b:12,c:3,p:8}], e:{n:"Cloud",b:24,c:1,p:40,k:25} },
+            { n: "Heathcliff", a: "😠", h: 160, s: [{n:"S1",b:6,c:2,p:7},{n:"S2",b:11,c:1,p:24},{n:"S3",b:13,c:3,p:10}], e:{n:"Bodysack",b:24,c:1,p:40,k:20} },
+            { n: "Ishmael", a: "⚓", h: 150, s: [{n:"S1",b:6,c:2,p:7},{n:"S2",b:9,c:3,p:7},{n:"S3",b:14,c:1,p:40}], e:{n:"Snag",b:28,c:1,p:35,k:30} },
+            { n: "Rodion", a: "🔨", h: 175, s: [{n:"S1",b:5,c:2,p:8},{n:"S2",b:9,c:2,p:13},{n:"S3",b:12,c:4,p:8}], e:{n:"Rime",b:23,c:1,p:45,k:25} },
+            { n: "Sinclair", a: "🔪", h: 135, s: [{n:"S1",b:4,c:4,p:5},{n:"S2",b:7,c:3,p:9},{n:"S3",b:15,c:2,p:25}], e:{n:"Branch",b:28,c:1,p:38,k:25} },
+            { n: "Outis", a: "🎖️", h: 150, s: [{n:"S1",b:7,c:2,p:7},{n:"S2",b:9,c:2,p:14},{n:"S3",b:13,c:3,p:11}], e:{n:"Stem",b:25,c:1,p:42,k:30} },
+            { n: "Gregor", a: "🐛", h: 165, s: [{n:"S1",b:6,c:2,p:8},{n:"S2",b:8,c:3,p:7},{n:"S3",b:12,c:2,p:15}], e:{n:"Leger",b:22,c:1,p:45,k:25} }
         ];
 
-        let squad = [], enemy = { h: 3000, max: 3000, atk: 40 }, curIdx = 0, actions = [];
+        let squad = [], enemy = { h: 5000, max: 5000, atk: 55 }, curIdx = 0, actions = [];
 
-        // INIT SELECT
+        // SELEÇÃO
         const grid = document.getElementById('grid');
         base.forEach(s => {
             const c = document.createElement('div'); c.className = 'char-card';
-            c.innerHTML = `<div style="font-size:2rem">${s.a}</div><div style="font-weight:bold">${s.n}</div>`;
+            c.innerHTML = `<div style="font-size:1.8rem">${s.a}</div><div style="font-size:0.6rem; margin-top:5px;">${s.n}</div>`;
             c.onclick = () => {
                 let i = squad.findIndex(it => it.n === s.n);
                 if(i > -1) { squad.splice(i,1); c.classList.remove('selected'); }
-                else if(squad.length < 6) { squad.push({...s, cur: s.h, sp: 100, def: false, id: Math.random()}); c.classList.add('selected'); }
-                document.getElementById('btn-go').disabled = squad.length === 0;
+                else if(squad.length < 6) { squad.push({...s, cur: s.h, sp: 0, def: false, id: Math.random()}); c.classList.add('selected'); }
+                document.getElementById('btn-go').disabled = (squad.length === 0);
             };
             grid.appendChild(c);
         });
@@ -118,18 +122,18 @@
             const area = document.getElementById('squad-ui'); area.innerHTML = '';
             squad.forEach(s => {
                 area.innerHTML += `<div class="unit-card" id="u-${s.id}">
-                    <div style="font-size:2.5rem">${s.a}</div><div style="font-size:0.8rem">${s.n}</div>
+                    <div style="font-size:1.8rem">${s.a}</div>
                     <div class="bar"><div id="hp-${s.id}" class="bar-fill" style="background:var(--win); width:100%"></div></div>
-                    <div class="bar" style="height:5px"><div id="sp-${s.id}" class="bar-fill" style="background:var(--sp); width:100%"></div></div>
+                    <div class="bar" style="height:4px"><div id="sp-${s.id}" class="bar-fill" style="background:var(--sp); width:50%"></div></div>
                 </div>`;
             });
             startTurn();
         }
 
         function startTurn() {
-            actions = []; curIdx = 0; squad.forEach(s => s.def = false);
-            document.querySelectorAll('.unit-card').forEach(u => u.style.borderColor = 'var(--border)');
-            addLog("dante", "< Tick... Tock... Planeje a aniquilação. >");
+            actions = []; curIdx = 0;
+            squad.forEach(s => s.def = false);
+            addLog("dante", "< Tick... Tock... Sem erros desta vez. >");
             askAction();
         }
 
@@ -146,20 +150,19 @@
             const list = document.getElementById('skills'); list.innerHTML = '';
             s.s.forEach(sk => {
                 const b = document.createElement('button'); b.className = 'btn-skill';
-                let max = sk.b + (sk.c * sk.p);
-                let pred = max > enemy.atk + 20 ? "EASY" : max > enemy.atk ? "WIN" : "CLASH";
-                b.innerHTML = `<b>${sk.n}</b><br>${sk.c} COINS<br><span style="color:var(--win)">[${pred}]</span>`;
+                let chance = Math.floor(50 + (s.sp)); 
+                b.innerHTML = `${sk.n}<br>${sk.c} COINS<br><span style="color:var(--sp)">SP CHANCE: ${chance}%</span>`;
                 b.onclick = () => { actions.push({s, sk, type:'atk'}); curIdx++; askAction(); };
                 list.appendChild(b);
             });
 
             const ego = document.createElement('button'); ego.className = 'btn-skill btn-ego';
-            ego.innerHTML = `<b>E.G.O</b><br>${s.e.n}<br>-${s.e.k} SP`;
-            ego.onclick = () => { if(s.sp>=s.e.k){ s.sp-=s.e.k; actions.push({s, sk:s.e, type:'ego'}); curIdx++; askAction(); } };
+            ego.innerHTML = `E.G.O<br>${s.e.n}<br>-${s.e.k} SP`;
+            ego.onclick = () => { if(s.sp >= -20) { actions.push({s, sk:s.e, type:'ego'}); s.sp -= s.e.k; curIdx++; askAction(); } };
             list.appendChild(ego);
 
             const def = document.createElement('button'); def.className = 'btn-skill';
-            def.innerHTML = `<b>DEFESA</b><br>REDUZ 70%`;
+            def.innerHTML = `DEFENSE<br>50% REDUC.`;
             def.onclick = () => { s.def = true; curIdx++; askAction(); };
             list.appendChild(def);
         }
@@ -168,40 +171,52 @@
             document.getElementById('ui-cmd').style.visibility = 'hidden';
             for(let a of actions) {
                 if(enemy.h <= 0) break;
-                await perform(a);
+                await performAction(a);
             }
             if(enemy.h > 0) {
-                await new Promise(r => setTimeout(r, 800));
+                await new Promise(r => setTimeout(r, 600));
                 let targets = squad.filter(s => s.cur > 0);
                 if(targets.length > 0) {
                     let t = targets[Math.floor(Math.random()*targets.length)];
-                    let dmg = t.def ? Math.floor(enemy.atk * 0.3) : enemy.atk;
+                    let dmg = t.def ? Math.floor(enemy.atk * 0.5) : enemy.atk + Math.floor(Math.random()*10);
                     t.cur -= dmg;
-                    addLog("enemy", `A Anormalidade rugiu e causou ${dmg} de dano em ${t.n}!`);
+                    t.sp = Math.max(-45, t.sp - 5);
+                    addLog("enemy", `${t.n} sofreu ${dmg} de dano! Sanidade caindo.`);
                 }
             }
             updateUI();
-            if(enemy.h <= 0) addLog("dante", "< Vitória. Alvos suprimidos com sucesso. >");
-            else if(squad.every(s => s.cur <= 0)) addLog("dante", "< Falha crítica. O tempo parou... >");
+            if(enemy.h <= 0) addLog("dante", "< Alvo Suprimido. Excelente trabalho, Gerente. >");
+            else if(squad.every(s => s.cur <= 0)) addLog("dante", "< O relógio parou. Falha Total. >");
             else setTimeout(startTurn, 1000);
         }
 
-        async function perform(a) {
+        async function performAction(a) {
             const box = document.getElementById('coin-box'); box.innerHTML = '';
-            let total = a.sk.b, coins = [];
+            let total = a.sk.b, coins = [], successCount = 0;
+            let chance = (50 + a.s.sp) / 100;
+
             for(let i=0; i<a.sk.c; i++) {
                 const c = document.createElement('div'); c.className = 'v-coin spin'; c.innerText = '?';
                 box.appendChild(c); coins.push(c);
             }
+
             for(let i=0; i<a.sk.c; i++) {
-                await new Promise(r => setTimeout(r, 300));
-                let heads = Math.random() > 0.3; // OP: 70% de chance de heads
-                if(heads) { total += a.sk.p; coins[i].className = 'v-coin h'; coins[i].innerText = 'H'; }
-                else { coins[i].className = 'v-coin t'; coins[i].innerText = 'T'; }
+                await new Promise(r => setTimeout(r, 350));
+                let heads = Math.random() < chance;
+                if(heads) { 
+                    total += a.sk.p; successCount++;
+                    coins[i].className = 'v-coin h'; coins[i].innerText = 'H'; 
+                } else { 
+                    coins[i].className = 'v-coin t'; coins[i].innerText = 'T'; 
+                }
             }
+            
+            // Ganha SP ao acertar moedas
+            a.s.sp = Math.min(45, a.s.sp + (successCount * 2));
+
             await new Promise(r => setTimeout(r, 500));
             enemy.h -= total;
-            addLog("sinner", `${a.s.n} liberou ${a.sk.n} para <span style="color:white">${total} de DANO!</span>`);
+            addLog("sinner", `${a.s.n} causou ${total} de dano!`);
             updateUI(); box.innerHTML = '';
         }
 
@@ -210,14 +225,16 @@
             document.getElementById('e-hp-txt').innerText = `${Math.max(0, enemy.h)}/${enemy.max}`;
             squad.forEach(s => {
                 document.getElementById(`hp-${s.id}`).style.width = (Math.max(0, s.cur)/s.h*100)+'%';
-                document.getElementById(`sp-${s.id}`).style.width = s.sp+'%';
+                // SP bar: map -45..45 to 0..100%
+                let spPercent = ((s.sp + 45) / 90) * 100;
+                document.getElementById(`sp-${s.id}`).style.width = spPercent+'%';
             });
         }
 
         function addLog(type, m) {
             const l = document.getElementById('log');
             let color = type === 'dante' ? 'var(--accent)' : type === 'enemy' ? 'var(--lose)' : 'var(--win)';
-            l.innerHTML += `<div style="color:${color}">> ${m}</div>`;
+            l.innerHTML += `<div><span style="color:${color}">></span> ${m}</div>`;
             l.scrollTop = l.scrollHeight;
         }
     </script>
